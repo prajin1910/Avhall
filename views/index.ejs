@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AV Hall Booking System - Login/Register</title>
+  <style>
+  /* Global Styles */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  :root {
+    --bg-primary: #121212;
+    --bg-secondary: #1e1e1e;
+    --bg-tertiary: #252525;
+    --bg-elevated: #2d2d2d;
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    --primary-color: #6366f1;
+    --primary-hover: #4f46e5;
+    --danger-color: #ef4444;
+    --danger-hover: #dc2626;
+    --success-color: #10b981;
+    --success-hover: #059669;
+    --border-color: #333333;
+    --shadow-color: rgba(0, 0, 0, 0.5);
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 2rem;
+  }
+
+  h1 {
+    color: var(--text-primary);
+    margin-bottom: 2rem;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.75rem;
+    letter-spacing: -0.5px;
+  }
+
+  /* Notification Messages */
+  .error-message, .success-message {
+    padding: 1rem 1.5rem;
+    margin: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 500;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 4px 6px var(--shadow-color);
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .error-message {
+    background-color: rgba(220, 38, 38, 0.1);
+    color: #ef4444;
+    border-left: 4px solid #ef4444;
+  }
+
+  .success-message {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border-left: 4px solid #10b981;
+  }
+
+  /* Auth Container */
+  .auth-container {
+    background-color: var(--bg-secondary);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    width: 100%;
+    max-width: 500px;
+    overflow: hidden;
+  }
+
+  /* Tab Navigation */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--text-secondary);
+    position: relative;
+    transition: all 0.3s;
+    outline: none;
+  }
+
+  .tab-btn:hover {
+    color: var(--text-primary);
+  }
+
+  .tab-btn.active {
+    color: var(--primary-color);
+    font-weight: 500;
+  }
+
+  .tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: var(--primary-color);
+    border-radius: 3px 3px 0 0;
+  }
+
+  /* Tab Content */
+  .tab-content {
+    padding: 2rem;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .tab-content h2 {
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    font-size: 1.5rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.75rem;
+    letter-spacing: -0.5px;
+  }
+
+  /* Forms */
+  form div {
+    margin-bottom: 1.5rem;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  input, select {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    transition: all 0.3s;
+  }
+
+  input:focus, select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+    outline: none;
+  }
+
+  button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+    width: 100%;
+    margin-top: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  button:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 600px) {
+    body {
+      padding: 1rem;
+    }
+    
+    .auth-container {
+      border-radius: 8px;
+    }
+    
+    .tab-content {
+      padding: 1.5rem 1rem;
+    }
+    
+    input, select, button {
+      padding: 0.75rem;
+    }
+  }
+  </style>
+</head>
+<body>
+  <h1>AV Hall Booking System</h1>
+  
+  <% if (locals.error) { %>
+    <div class="error-message">
+      <%= error %>
+    </div>
+  <% } %>
+  
+  <% if (locals.success) { %>
+    <div class="success-message">
+      <%= success %>
+    </div>
+  <% } %>
+  
+  <div class="auth-container">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('login')">Login</button>
+      <button class="tab-btn" onclick="showTab('register')">Register</button>
+    </div>
+    
+    <div id="login" class="tab-content">
+      <h2>Login</h2>
+      <form action="/login" method="POST">
+        <div>
+          <label for="login-email">Email:</label>
+          <input type="email" id="login-email" name="email" placeholder="Enter Email" required>
+        </div>
+        <div>
+          <label for="login-password">Password:</label>
+          <input type="password" id="login-password" name="password" placeholder="Enter your Password" required>
+        </div>
+        <button type="submit">Login</button>
+      </form>
+    </div>
+    
+    <div id="register" class="tab-content" style="display: none;">
+      <h2>Register</h2>
+      <form action="/register" method="POST">
+        <div>
+          <label for="name">Full Name:</label>
+          <input type="text" id="name" name="name" placeholder="Enter Name" required>
+        </div>
+        <div>
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" placeholder="Enter Email" required>
+        </div>
+        <div>
+          <label for="department">Department:</label>
+          <select id="department" name="department" required>
+            <option value="" disabled selected>Select Department</option>
+            <option value="CSE">Computer Science and Engineering (CSE)</option>
+            <option value="IT">Information Technology (IT)</option>
+            <option value="ECE">Electronics and Communication Engineering (ECE)</option>
+            <option value="EEE">Electrical and Electronics Engineering (EEE)</option>
+            <option value="MECH">Mechanical Engineering (MECH)</option>
+            <option value="CIVIL">Civil Engineering (CIVIL)</option>
+            <option value="AERO">Aeronautical Engineering (AERO)</option>
+            <option value="BIO">Bio-Technology (BIO)</option>
+          </select>      
+        </div>
+        <div>
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" placeholder="Enter Password" required>
+        </div>
+        <button type="submit">Register</button>
+      </form>
+    </div>
+  </div>
+  
+  <script>
+    function showTab(tabName) {
+      // Hide all tab contents
+      const tabContents = document.querySelectorAll('.tab-content');
+      tabContents.forEach(content => {
+        content.style.display = 'none';
+      });
+      
+      // Remove active class from all tabs
+      const tabButtons = document.querySelectorAll('.tab-btn');
+      tabButtons.forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // Show selected tab content and set active class
+      document.getElementById(tabName).style.display = 'block';
+      document.querySelector(`.tab-btn[onclick="showTab('${tabName}')"]`).classList.add('active');
+    }
+  </script>
+</body>
+</html>
