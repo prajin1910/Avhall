@@ -239,11 +239,20 @@ app.get('/dashboard', async (req, res) => {
     // Get all bookings (excluding cancelled ones)
     const allBookings = await Booking.find({ status: { $ne: 'cancelled' } }).sort({ date: 1, startTime: 1 });
     
+    // Get user's hidden bookings
+    const hiddenBookings = await HiddenBooking.find({ userId: req.session.userId });
+    const hiddenBookingIds = hiddenBookings.map(hb => hb.bookingId.toString());
+
     // Get user's bookings (excluding cancelled ones)
     const userBookings = await Booking.find({ 
       userId: req.session.userId,
       status: { $ne: 'cancelled' }
     }).sort({ date: 1, startTime: 1 });
+
+    // Filter out hidden bookings from user's bookings
+    const filteredUserBookings = userBookings.filter(booking => 
+      !hiddenBookingIds.includes(booking._id.toString())
+    );
     
     // Get user info
     const user = {
@@ -259,7 +268,7 @@ app.get('/dashboard', async (req, res) => {
     res.render('main', {
       user,
       allBookings,
-      userBookings,
+      userBookings: filteredUserBookings, // Use the filtered bookings
       avHalls: ['AV Hall 1', 'AV Hall 2', 'AV Hall 3', 'AV Hall 4', 'AV Hall 5', 'AV Hall 6'],
       error,
       success,
@@ -372,7 +381,51 @@ app.post('/update/:id', async (req, res) => {
     res.redirect('/dashboard?error=Update failed. Please try again.&tab=my-bookings');
   }
 });
+// Create a new schema for hidden bookings
+const hiddenBookingSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  bookingId: { type: mongoose.Schema.Types.ObjectId, ref: 'Booking', required: true }
+});
 
+const HiddenBooking = mongoose.model('HiddenBooking', hiddenBookingSchema);
+
+app.post('/delete/:id', async (req, res) => {
+  if (!req.session.userId) {
+    return res.redirect('/');
+  }
+  
+  try {
+    const bookingId = req.params.id;
+    const booking = await Booking.findById(bookingId);
+    
+    // Verify that the booking exists and belongs to the current user
+    if (!booking) {
+      return res.redirect('/dashboard?tab=my-bookings&error=Booking not found');
+    }
+    
+    // Check if user owns this booking
+    if (booking.userId.toString() !== req.session.userId) {
+      return res.redirect('/dashboard?tab=my-bookings&error=Not authorized to hide this booking');
+    }
+    
+    // Verify the booking is completed
+    if (booking.status !== 'completed') {
+      return res.redirect('/dashboard?tab=my-bookings&error=Only completed bookings can be hidden');
+    }
+    
+    // Create a hidden booking record
+    const hiddenBooking = new HiddenBooking({
+      userId: req.session.userId,
+      bookingId: booking._id
+    });
+    await hiddenBooking.save();
+    
+    res.redirect('/dashboard?tab=my-bookings&success=Booking removed from your bookings');
+  } catch (err) {
+    console.error(err);
+    res.redirect('/dashboard?tab=my-bookings&error=Failed to remove booking');
+  }
+});
 // Cancel booking route
 app.post('/cancel/:id', async (req, res) => {
   if (!req.session.userId) {
@@ -413,8 +466,6 @@ app.get('/logout', (req, res) => {
   req.session.destroy();
   res.redirect('/');
 });
-
-
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
