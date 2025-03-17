@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Add this meta tag inside the <head> section -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, height=device-height">
   <title>AV Hall Booking System - Login/Register</title>
   <style>
   /* Global Styles */
@@ -246,13 +248,21 @@
   width: 20px;
   height: 20px;
 }
+/* Update these responsive styles in your existing CSS */
+/* Replace your existing mobile media query with this */
 @media (max-width: 600px) {
   body {
-    padding: 1rem;
+    padding: 0;
+    min-height: 100vh;
+  }
+  
+  main {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    min-height: 100vh;
+    align-items: center;
+    width: 100%;
+    padding: 1rem;
   }
   
   .auth-container {
@@ -261,8 +271,107 @@
     max-width: 90%;
     margin: 0 auto;
   }
+  
+  .tab-content {
+    padding: 1.25rem 1rem;
+  }
+  
+  input, select, button {
+    padding: 0.75rem;
+  }
+  
+  .footer {
+    position: static;
+    margin-top: 1rem;
+    padding: 0.75rem 0;
+    width: 100%;
+  }
+  
+  /* Fix scrolling issues */
+  html, body {
+    height: 100%;
+  }
+  
+  /* Add this to specifically handle the login tab */
+  body.login-active {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  /* Add this to handle the register tab */
+  body.register-active {
+    display: block;
+    overflow-y: auto;
+  }
 }
-
+@media (max-width: 600px) {
+  body {
+    padding: 0;
+    min-height: 100vh;
+  }
+  
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 1rem;
+    /* Add padding to push content down a bit */
+    padding-top: 12vh;
+  }
+  
+  h1 {
+    margin-bottom: 2rem;
+    top: 10%;
+  }
+  
+  .auth-container {
+    border-radius: 8px;
+    width: 100%;
+    max-width: 90%;
+    margin: 0 auto;
+    /* Add margin to push it down */
+    margin-top: -1rem;
+  }
+  
+  .tab-content {
+    padding: 1.25rem 1rem;
+  }
+  
+  input, select, button {
+    padding: 0.75rem;
+  }
+  
+  .footer {
+    position: static;
+    margin-top: 1rem;
+    padding: 0.75rem 0;
+    width: 100%;
+  }
+  
+  /* Fix scrolling issues */
+  html, body {
+    height: 100%;
+  }
+  
+  /* For login tab specifically */
+  body.login-active main {
+    justify-content: flex-start;
+    padding-top: 15vh;
+  }
+  
+  /* For register tab */
+  body.register-active {
+    display: block;
+    overflow-y: auto;
+  }
+  
+  body.register-active main {
+    padding-top: 4vh;
+  }
+}
 /* Footer Styles */
 .footer {
   margin-top: 2rem;
@@ -438,6 +547,33 @@ main {
     `;
   }
 }
+
+function showTab(tabName) {
+  // Hide all tab contents
+  const tabContents = document.querySelectorAll('.tab-content');
+  tabContents.forEach(content => {
+    content.style.display = 'none';
+  });
+  
+  // Remove active class from all tabs
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  tabButtons.forEach(btn => {
+    btn.classList.remove('active');
+  });
+  
+  // Show selected tab content and set active class
+  document.getElementById(tabName).style.display = 'block';
+  document.querySelector(`.tab-btn[onclick="showTab('${tabName}')"]`).classList.add('active');
+  
+  // Update body class based on active tab
+  document.body.classList.remove('login-active', 'register-active');
+  document.body.classList.add(tabName + '-active');
+}
+
+// Set initial body class based on default tab
+document.addEventListener('DOMContentLoaded', function() {
+  document.body.classList.add('login-active');
+});
   </script>
 </body>
 </html>
