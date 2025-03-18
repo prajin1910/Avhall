@@ -27,6 +27,7 @@
           --success-color: #10b981;
           --success-hover: #059669;
           --border-color: #333333;
+          --ongoing-color:#f59e08;
           --shadow-color: rgba(0, 0, 0, 0.5);
         }
       
@@ -604,8 +605,8 @@
       }
       
       .status-ongoing {
-        background-color: rgba(16, 185, 129, 0.15);
-        color: var(--success-color);
+        background-color: rgba(248, 160, 10, 0.15);
+        color: var(--ongoing-color);
       }
       
       .status-completed {
@@ -1276,62 +1277,57 @@ function sortTableBookings(tableId) {
     // Run initial sort
     sortBookings();
     
-    // Refresh status automatically every minute
     function refreshStatus() {
-      const rows = document.querySelectorAll('#all-bookings-table tbody tr, #my-bookings table tbody tr');
-      const now = new Date();
-      const currentTime = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-      const currentTimeMinutes = convertTimeToMinutes(currentTime);
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      
-      rows.forEach(row => {
-        const status = row.querySelector('.status');
-        if (!status) return;
-        
-        const dateCell = row.querySelector('td:nth-child(4)');
-        const startTimeCell = row.querySelector('td:nth-child(5)');
-        const endTimeCell = row.querySelector('td:nth-child(6)');
-        
-        if (!dateCell || !startTimeCell || !endTimeCell) return;
-        
-        const bookingDate = new Date(dateCell.textContent);
-        const startTime = startTimeCell.textContent;
-        const endTime = endTimeCell.textContent;
-        
-        // Function to convert time format "HH:MM AM/PM" to minutes
-        function convertTimeToMinutes(timeStr) {
-          let [timePart, period] = timeStr.split(' ');
-          let [hours, minutes] = timePart.split(':').map(Number);
-          
-          if (period === 'PM' && hours < 12) hours += 12;
-          if (period === 'AM' && hours === 12) hours = 0;
-          
-          return hours * 60 + minutes;
-        }
-        
-        const startTimeMinutes = convertTimeToMinutes(startTime);
-        const endTimeMinutes = convertTimeToMinutes(endTime);
-        
-        // Check if the booking is for today
-        const isToday = bookingDate.getFullYear() === today.getFullYear() && 
-                        bookingDate.getMonth() === today.getMonth() && 
-                        bookingDate.getDate() === today.getDate();
-        
-        // Check if the booking is in the past
-        const isPast = bookingDate < today;
-        
-        // Update status based on current time
-        if (status.classList.contains('status-booked') || status.classList.contains('status-ongoing')) {
-          if (isPast || (isToday && currentTimeMinutes >= endTimeMinutes)) {
-            status.textContent = 'completed';
-            status.className = 'status status-completed';
-          } else if (isToday && currentTimeMinutes >= startTimeMinutes && currentTimeMinutes < endTimeMinutes) {
-            status.textContent = 'ongoing';
-            status.className = 'status status-ongoing';
-          }
-        }
-      });
+  const rows = document.querySelectorAll('#all-bookings-table tbody tr, #my-bookings-table tbody tr');
+  const now = new Date();
+  const currentTime = now.getHours().toString().padStart(2, '0') + ':' + 
+                     now.getMinutes().toString().padStart(2, '0');
+  const currentTimeMinutes = convertTimeToMinutes(currentTime);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  
+  rows.forEach(row => {
+    const status = row.querySelector('.status');
+    if (!status) return;
+    
+    // Skip "no bookings" rows
+    if (row.querySelector('td[colspan]')) return;
+    
+    const dateCell = row.cells[row.querySelector('td[data-label="Date"]') ? 
+                               row.querySelector('td[data-label="Date"]').cellIndex : 2];
+    const startTimeCell = row.cells[row.querySelector('td[data-label="Start Time"]') ? 
+                                   row.querySelector('td[data-label="Start Time"]').cellIndex : 3];
+    const endTimeCell = row.cells[row.querySelector('td[data-label="End Time"]') ? 
+                                 row.querySelector('td[data-label="End Time"]').cellIndex : 4];
+    
+    if (!dateCell || !startTimeCell || !endTimeCell) return;
+    
+    const bookingDate = new Date(dateCell.textContent.trim());
+    const startTime = startTimeCell.textContent.trim();
+    const endTime = endTimeCell.textContent.trim();
+    
+    const startTimeMinutes = convertTimeToMinutes(startTime);
+    const endTimeMinutes = convertTimeToMinutes(endTime);
+    
+    // Check if booking is for today
+    const isToday = bookingDate.getFullYear() === today.getFullYear() && 
+                    bookingDate.getMonth() === today.getMonth() && 
+                    bookingDate.getDate() === today.getDate();
+    
+    // Check if booking is in the past
+    const isPast = bookingDate < today;
+    
+    // Update status based on current time and date
+    if (status.classList.contains('status-booked') || status.classList.contains('status-ongoing')) {
+      if (isPast || (isToday && currentTimeMinutes >= endTimeMinutes)) {
+        status.textContent = 'Completed';
+        status.className = 'status status-completed';
+      } else if (isToday && currentTimeMinutes >= startTimeMinutes && currentTimeMinutes < endTimeMinutes) {
+        status.textContent = 'Ongoing';
+        status.className = 'status status-ongoing';
+      }
     }
+  });
+}
     
     // Run initial status update
     refreshStatus();

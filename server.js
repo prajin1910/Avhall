@@ -89,9 +89,9 @@ async function checkBookingConflict(avHall, date, startTime, endTime, excludeBoo
   return null;
 }
 
-// Helper function to convert time string (HH:MM) to minutes
+// Function to convert time format "HH:MM" to minutes since midnight
 function convertTimeToMinutes(timeStr) {
-  const [hours, minutes] = timeStr.split(':').map(Number);
+  let [hours, minutes] = timeStr.split(':').map(Number);
   return hours * 60 + minutes;
 }
 
@@ -117,46 +117,38 @@ function formatTime(time24) {
   return `${hours12}:${minutes} ${period}`;
 }
 
-// Update booking statuses based on current time
+// Add this to your server-side code if it's not already there
 async function updateBookingStatuses() {
   const now = new Date();
-  const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-  const currentTimeMinutes = convertTimeToMinutes(currentTime);
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const currentTime = now.getHours().toString().padStart(2, '0') + ':' + 
+                     now.getMinutes().toString().padStart(2, '0');
   
   try {
-    // Find bookings for today
-    const todayBookings = await Booking.find({
-      date: {
-        $gte: today,
-        $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)
-      },
+    // Find bookings that should be marked as completed
+    await Booking.updateMany({
+      $or: [
+        { date: { $lt: today } }, // Past dates
+        { 
+          date: today, 
+          endTime: { $lte: currentTime } 
+        } // Today but end time passed
+      ],
       status: { $in: ['booked', 'ongoing'] }
+    }, { 
+      $set: { status: 'completed' } 
     });
     
-    for (const booking of todayBookings) {
-      const startTimeMinutes = convertTimeToMinutes(booking.startTime);
-      const endTimeMinutes = convertTimeToMinutes(booking.endTime);
-      
-      if (currentTimeMinutes >= startTimeMinutes && currentTimeMinutes < endTimeMinutes) {
-        booking.status = 'ongoing';
-      } else if (currentTimeMinutes >= endTimeMinutes) {
-        booking.status = 'completed';
-      }
-      
-      await booking.save();
-    }
-    
-    // Find past bookings that should be marked as completed
-    const pastBookings = await Booking.find({
-      date: { $lt: today },
-      status: { $in: ['booked', 'ongoing'] }
+    // Find bookings that should be marked as ongoing
+    await Booking.updateMany({
+      date: today,
+      startTime: { $lte: currentTime },
+      endTime: { $gt: currentTime },
+      status: 'booked'
+    }, {
+      $set: { status: 'ongoing' }
     });
     
-    for (const booking of pastBookings) {
-      booking.status = 'completed';
-      await booking.save();
-    }
   } catch (error) {
     console.error('Error updating booking statuses:', error);
   }
