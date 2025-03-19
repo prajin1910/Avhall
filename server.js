@@ -1,7 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
 const session = require('express-session');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
+const moment = require('moment');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -14,451 +16,409 @@ mongoose.connect(uri)
         process.exit(1);
     });
 
-// Define schemas and models
+
+// Define schemas
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   department: { type: String, required: true },
-  password: { type: String, required: true },
+  password: { type: String, required: true }
 });
 
 const bookingSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  userName: { type: String, required: true },
-  reason: { type: String, required: true },
-  avHall: { type: String, required: true },
-  date: { type: Date, required: true },
-  startTime: { type: String, required: true },
-  endTime: { type: String, required: true },
-  status: { type: String, default: 'booked', enum: ['booked', 'ongoing', 'completed', 'cancelled'] }
-});
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    userName: { type: String, required: true },
+    reason: { type: String, required: true },
+    avHall: { type: String, required: true },
+    date: { type: Date, required: true },
+    startTime: { type: String, required: true },
+    endTime: { type: String, required: true },
+    status: { type: String, default: 'booked' },
+    isDeletedByUser: { type: Boolean, default: false }, // New field
+    createdAt: { type: Date, default: Date.now }
+  });
 
-// Pre-save hook to hash the password
-userSchema.pre('save', async function(next) {
-  if (this.isModified('password')) {
-    this.password = await bcrypt.hash(this.password, 10);
-  }
-  next();
-});
-
+// Create models
 const User = mongoose.model('User', userSchema);
 const Booking = mongoose.model('Booking', bookingSchema);
 
-// Middleware setup
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+// Middleware
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(session({
   secret: 'avhallbookingsecret',
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: true
 }));
 app.set('view engine', 'ejs');
 
-// Helper function to check for booking conflicts
-async function checkBookingConflict(avHall, date, startTime, endTime, excludeBookingId = null) {
-  const dateObj = new Date(date);
-  const nextDay = new Date(dateObj);
-  nextDay.setDate(dateObj.getDate() + 1);
-  
-  const query = {
-    avHall: avHall,
-    date: {
-      $gte: dateObj,
-      $lt: nextDay
-    },
-    status: { $ne: 'cancelled' },
-    _id: excludeBookingId ? { $ne: excludeBookingId } : { $exists: true }
-  };
-  
-  const existingBookings = await Booking.find(query);
-  
-  for (const booking of existingBookings) {
-    const existingStart = convertTimeToMinutes(booking.startTime);
-    const existingEnd = convertTimeToMinutes(booking.endTime);
-    const newStart = convertTimeToMinutes(startTime);
-    const newEnd = convertTimeToMinutes(endTime);
-    
-    // Check if times overlap
-    if ((newStart >= existingStart && newStart < existingEnd) || 
-        (newEnd > existingStart && newEnd <= existingEnd) ||
-        (newStart <= existingStart && newEnd >= existingEnd)) {
-      return booking;
-    }
+// Auth middleware
+const isAuthenticated = (req, res, next) => {
+  if (req.session.userId) {
+    return next();
   }
-  
-  return null;
-}
+  res.redirect('/');
+};
 
-// Function to convert time format "HH:MM" to minutes since midnight
-function convertTimeToMinutes(timeStr) {
-  let [hours, minutes] = timeStr.split(':').map(Number);
-  return hours * 60 + minutes;
-}
-
-// Format time for display
-function formatTime(time24) {
-  if (!time24) return '';
-  
-  const [hours, minutes] = time24.split(':');
-  let period = 'AM';
-  let hours12 = parseInt(hours);
-  
-  if (hours12 >= 12) {
-    period = 'PM';
-    if (hours12 > 12) {
-      hours12 -= 12;
-    }
-  }
-  
-  if (hours12 === 0) {
-    hours12 = 12;
-  }
-  
-  return `${hours12}:${minutes} ${period}`;
-}
-
-// Add this to your server-side code if it's not already there
-async function updateBookingStatuses() {
+// Helper function to update booking statuses
+const updateBookingStatuses = async () => {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const currentTime = now.getHours().toString().padStart(2, '0') + ':' + 
-                     now.getMinutes().toString().padStart(2, '0');
   
-  try {
-    // Find bookings that should be marked as completed
-    await Booking.updateMany({
-      $or: [
-        { date: { $lt: today } }, // Past dates
-        { 
-          date: today, 
-          endTime: { $lte: currentTime } 
-        } // Today but end time passed
-      ],
-      status: { $in: ['booked', 'ongoing'] }
-    }, { 
-      $set: { status: 'completed' } 
-    });
+  // Get all active bookings
+  const bookings = await Booking.find({
+    status: { $in: ['booked', 'ongoing'] }
+  });
+  
+  // Update status for each booking
+  for (const booking of bookings) {
+    const bookingDate = new Date(booking.date);
+    const startDateTime = new Date(
+      bookingDate.getFullYear(),
+      bookingDate.getMonth(),
+      bookingDate.getDate(),
+      parseInt(booking.startTime.split(':')[0]),
+      parseInt(booking.startTime.split(':')[1])
+    );
     
-    // Find bookings that should be marked as ongoing
-    await Booking.updateMany({
-      date: today,
-      startTime: { $lte: currentTime },
-      endTime: { $gt: currentTime },
-      status: 'booked'
-    }, {
-      $set: { status: 'ongoing' }
-    });
+    const endDateTime = new Date(
+      bookingDate.getFullYear(),
+      bookingDate.getMonth(),
+      bookingDate.getDate(),
+      parseInt(booking.endTime.split(':')[0]),
+      parseInt(booking.endTime.split(':')[1])
+    );
     
-  } catch (error) {
-    console.error('Error updating booking statuses:', error);
+    // Update to 'ongoing'
+    if (now >= startDateTime && now < endDateTime && booking.status === 'booked') {
+      await Booking.updateOne({ _id: booking._id }, { status: 'ongoing' });
+    }
+    
+    // Update to 'completed'
+    if (now >= endDateTime && booking.status !== 'completed') {
+      await Booking.updateOne({ _id: booking._id }, { status: 'completed' });
+    }
   }
-}
+};
 
 // Routes
 app.get('/', (req, res) => {
-  res.render('index');
+  res.render('index', { message: '' });
 });
 
-// Register route
+// Register
 app.post('/register', async (req, res) => {
   try {
     const { name, email, department, password } = req.body;
-    
-    // Check if user already exists
     const existingUser = await User.findOne({ email });
+    
     if (existingUser) {
-      return res.render('index', { error: 'Email already registered' });
+      return res.render('index', { message: 'Email already registered' });
     }
     
-    // Create new user
-    const user = new User({
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    const newUser = new User({
       name,
       email,
       department,
-      password
+      password: hashedPassword
     });
     
-    await user.save();
-    res.render('index', { success: 'Registration successful. Please login.' });
+    await newUser.save();
+    res.render('index', { message: 'Registration successful! Please login.' });
   } catch (error) {
-    console.error('Registration error:', error);
-    res.render('index', { error: 'Registration failed. Please try again.' });
+    console.error(error);
+    res.render('index', { message: 'Registration failed. Please try again.' });
   }
 });
 
-// Login route
+// Login
 app.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    
-    // Find user by email
     const user = await User.findOne({ email });
+    
     if (!user) {
-      return res.render('index', { error: 'Invalid email or password' });
+      return res.render('index', { message: 'Invalid email or password' });
     }
     
-    // Check password
     const isMatch = await bcrypt.compare(password, user.password);
+    
     if (!isMatch) {
-      return res.render('index', { error: 'Invalid email or password' });
+      return res.render('index', { message: 'Invalid email or password' });
     }
     
-    // Set session
     req.session.userId = user._id;
     req.session.userName = user.name;
-    req.session.userEmail = user.email;
-    req.session.department = user.department;
-    
-    // Update booking statuses before redirecting
-    await updateBookingStatuses();
     
     res.redirect('/dashboard');
   } catch (error) {
-    console.error('Login error:', error);
-    res.render('index', { error: 'Login failed. Please try again.' });
+    console.error(error);
+    res.render('index', { message: 'Login failed. Please try again.' });
   }
 });
 
-app.get('/dashboard', async (req, res) => {
-  if (!req.session.userId) {
-    return res.redirect('/');
-  }
+// Dashboard
+app.get('/dashboard', isAuthenticated, async (req, res) => {
+    try {
+      await updateBookingStatuses();
+      
+      const userId = req.session.userId;
+      const userName = req.session.userName;
+      const filter = req.query.filter || 'all';
+      const user = await User.findById(userId);
+      const userDepartment = user.department;
+      let bookingQuery = {};
+      if (filter && filter !== 'all') {
+        bookingQuery.status = filter;
+      }
+      
+      // Get all bookings regardless of deletion status
+      let allBookings = await Booking.find(bookingQuery).sort({ date: 1, startTime: 1 });
+      
+      // Get only user's bookings that haven't been deleted
+      let myBookings = await Booking.find({ 
+        userId, 
+        isDeletedByUser: { $ne: true } // Only get non-deleted bookings
+      }).sort({ date: 1, startTime: 1 });
+      
+      // Sort bookings by status priority: ongoing, booked, completed
+      const statusPriority = { 'ongoing': 1, 'booked': 2, 'completed': 3 };
+      
+      allBookings = allBookings.sort((a, b) => {
+        // First sort by status priority
+        if (statusPriority[a.status] !== statusPriority[b.status]) {
+          return statusPriority[a.status] - statusPriority[b.status];
+        }
+        
+        // If same status, sort by date
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        if (dateA.getTime() !== dateB.getTime()) {
+          return dateA - dateB;
+        }
+        
+        // If same date, sort by start time
+        return convertTimeToMinutes(a.startTime) - convertTimeToMinutes(b.startTime);
+      });
+      
+      myBookings = myBookings.sort((a, b) => {
+        // First sort by status priority
+        if (statusPriority[a.status] !== statusPriority[b.status]) {
+          return statusPriority[a.status] - statusPriority[b.status];
+        }
+        
+        // If same status, sort by date
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        if (dateA.getTime() !== dateB.getTime()) {
+          return dateA - dateB;
+        }
+        
+        // If same date, sort by start time
+        return convertTimeToMinutes(a.startTime) - convertTimeToMinutes(b.startTime);
+      });
+      
+      const avHalls = ['AV Hall 1', 'AV Hall 2', 'AV Hall 3', 'AV Hall 4', 'AV Hall 5', 'AV Hall 6'];
+      
+      res.render('main', {
+        userName,
+        userId,
+        userDepartment, // Add this line to pass department to template
+        allBookings,
+        myBookings,
+        avHalls,
+        moment,
+        filter,
+        message: req.query.message || ''
+      });
+    } catch (error) {
+      console.error(error);
+      res.redirect('/?message=An error occurred');
+    }
+});
+
+// Book hall
+app.post('/book', isAuthenticated, async (req, res) => {
+    try {
+      const { reason, avHall, date, startTime, endTime, tab } = req.body;
+      const userId = req.session.userId;
+      const userName = req.session.userName;
+      
+      // Check for time conflict
+      const bookingDate = new Date(date);
+      const bookings = await Booking.find({
+        avHall,
+        status: { $in: ['booked', 'ongoing'] }
+      });
+      
+      // Check each booking for time conflicts
+      for (const existingBooking of bookings) {
+        const existingDate = new Date(existingBooking.date);
+        
+        // Skip if not on same date
+        if (existingDate.toDateString() !== bookingDate.toDateString()) {
+          continue;
+        }
+        
+        // Check for time overlap
+        const newStart = convertTimeToMinutes(startTime);
+        const newEnd = convertTimeToMinutes(endTime);
+        const existingStart = convertTimeToMinutes(existingBooking.startTime);
+        const existingEnd = convertTimeToMinutes(existingBooking.endTime);
+        
+        if ((newStart < existingEnd && newEnd > existingStart)) {
+          return res.redirect(`/dashboard?message=Hall already booked by ${existingBooking.userName} from ${existingBooking.startTime} to ${existingBooking.endTime}&tab=${tab || 'bookHall'}`);
+        }
+      }
+      
+      // Create new booking
+      const booking = new Booking({
+        userId,
+        userName,
+        reason,
+        avHall,
+        date,
+        startTime,
+        endTime,
+        status: 'booked'
+      });
+      
+      await booking.save();
+      res.redirect(`/dashboard?message=Booking successful&tab=${tab || 'bookHall'}`);
+    } catch (error) {
+      console.error(error);
+      res.redirect('/dashboard?message=Booking failed&tab=bookHall');
+    }
+  });
   
-  try {
-    // Update booking statuses
-    await updateBookingStatuses();
-    
-    // Get all bookings (excluding cancelled ones)
-    const allBookings = await Booking.find({ status: { $ne: 'cancelled' } }).sort({ date: 1, startTime: 1 });
-    
-    // Get user's hidden bookings
-    const hiddenBookings = await HiddenBooking.find({ userId: req.session.userId });
-    const hiddenBookingIds = hiddenBookings.map(hb => hb.bookingId.toString());
 
-    // Get user's bookings (excluding cancelled ones)
-    const userBookings = await Booking.find({ 
-      userId: req.session.userId,
-      status: { $ne: 'cancelled' }
-    }).sort({ date: 1, startTime: 1 });
+// Helper function to convert time to minutes for easier comparison
+function convertTimeToMinutes(timeString) {
+  const [hours, minutes] = timeString.split(':').map(Number);
+  return hours * 60 + minutes;
+}
 
-    // Filter out hidden bookings from user's bookings
-    const filteredUserBookings = userBookings.filter(booking => 
-      !hiddenBookingIds.includes(booking._id.toString())
-    );
-    
-    // Get user info
-    const user = {
-      name: req.session.userName,
-      department: req.session.department
-    };
-    
-    // Get query parameters
-    const error = req.query.error;
-    const success = req.query.success;
-    const tab = req.query.tab || 'all-bookings';
-    
-    res.render('main', {
-      user,
-      allBookings,
-      userBookings: filteredUserBookings, // Use the filtered bookings
-      avHalls: ['AV Hall 1', 'AV Hall 2', 'AV Hall 3', 'AV Hall 4', 'AV Hall 5', 'AV Hall 6'],
-      error,
-      success,
-      formatTime,
-      activeTab: tab
-    });
-  } catch (error) {
-    console.error('Dashboard error:', error);
-    res.render('index', { error: 'An error occurred. Please login again.' });
-  }
-});
-// Book AV Hall route
-app.post('/book', async (req, res) => {
-  if (!req.session.userId) {
-    return res.redirect('/');
-  }
-  
-  try {
-    const { reason, avHall, date, startTime, endTime } = req.body;
-    
-    // Basic validation
-    if (!reason || !avHall || !date || !startTime || !endTime) {
-      return res.redirect('/dashboard?error=All fields are required&tab=book-hall');
-    }
-    
-    // Validate time format
-    if (startTime >= endTime) {
-      return res.redirect('/dashboard?error=End time must be after start time&tab=book-hall');
-    }
-    
-    // Check for conflicting bookings
-    const conflict = await checkBookingConflict(avHall, date, startTime, endTime);
-    if (conflict) {
-      return res.redirect(`/dashboard?error=Hall already booked for this time by ${conflict.userName}&tab=book-hall`);
-    }
-    
-    // Create new booking
-    const booking = new Booking({
-      userId: req.session.userId,
-      userName: req.session.userName,
-      reason,
-      avHall,
-      date,
-      startTime,
-      endTime,
-      status: 'booked'
-    });
-    
-    await booking.save();
-    res.redirect('/dashboard?success=Booking successful&tab=my-bookings');
-  } catch (error) {
-    console.error('Booking error:', error);
-    res.redirect('/dashboard?error=Booking failed. Please try again.&tab=book-hall');
-  }
-});
 
-// Update booking route
-app.post('/update/:id', async (req, res) => {
-  if (!req.session.userId) {
-    return res.redirect('/');
-  }
-  
-  try {
-    const bookingId = req.params.id;
-    const { reason, avHall, date, startTime, endTime } = req.body;
-    
-    // Basic validation
-    if (!reason || !avHall || !date || !startTime || !endTime) {
-      return res.redirect('/dashboard?error=All fields are required&tab=my-bookings');
+// Update booking
+app.post('/update/:id', isAuthenticated, async (req, res) => {
+    try {
+      const bookingId = req.params.id;
+      const userId = req.session.userId;
+      const { reason, avHall, date, startTime, endTime, tab } = req.body;
+      const booking = await Booking.findOne({ _id: bookingId, userId });
+      
+      if (!booking) {
+        return res.redirect(`/dashboard?message=Booking not found&tab=${tab || 'myBookings'}`);
+      }
+      
+      if (booking.status === 'completed') {
+        return res.redirect(`/dashboard?message=Cannot edit completed bookings&tab=${tab || 'myBookings'}`);
+      }
+      
+      // Check for time conflict
+      const bookingDate = new Date(date);
+      const bookings = await Booking.find({
+        _id: { $ne: bookingId },
+        avHall,
+        status: { $in: ['booked', 'ongoing'] }
+      });
+      
+      // Check each booking for time conflicts
+      for (const existingBooking of bookings) {
+        const existingDate = new Date(existingBooking.date);
+        
+        // Skip if not on same date
+        if (existingDate.toDateString() !== bookingDate.toDateString()) {
+          continue;
+        }
+        
+        // Check for time overlap
+        const newStart = convertTimeToMinutes(startTime);
+        const newEnd = convertTimeToMinutes(endTime);
+        const existingStart = convertTimeToMinutes(existingBooking.startTime);
+        const existingEnd = convertTimeToMinutes(existingBooking.endTime);
+        
+        if ((newStart < existingEnd && newEnd > existingStart)) {
+          return res.redirect(`/dashboard?message=Hall already booked by ${existingBooking.userName} from ${existingBooking.startTime} to ${existingBooking.endTime}&tab=${tab || 'myBookings'}`);
+        }
+      }
+      
+      // Update booking
+      booking.reason = reason;
+      booking.avHall = avHall;
+      booking.date = date;
+      booking.startTime = startTime;
+      booking.endTime = endTime;
+      
+      await booking.save();
+      res.redirect(`/dashboard?message=Booking updated successfully&tab=${tab || 'myBookings'}`);
+    } catch (error) {
+      console.error(error);
+      res.redirect('/dashboard?message=Update failed&tab=myBookings');
     }
-    
-    // Validate time format
-    if (startTime >= endTime) {
-      return res.redirect('/dashboard?error=End time must be after start time&tab=my-bookings');
+  });
+// Cancel booking
+app.get('/cancel/:id', isAuthenticated, async (req, res) => {
+    try {
+      const bookingId = req.params.id;
+      const userId = req.session.userId;
+      const tab = req.query.tab || 'myBookings';
+      
+      const booking = await Booking.findOne({ _id: bookingId, userId });
+      
+      if (!booking) {
+        return res.redirect(`/dashboard?message=Booking not found&tab=${tab}`);
+      }
+      
+      if (booking.status === 'completed') {
+        return res.redirect(`/dashboard?message=Cannot cancel completed bookings&tab=${tab}`);
+      }
+      
+      await Booking.deleteOne({ _id: bookingId, userId });
+      res.redirect(`/dashboard?message=Booking cancelled successfully&tab=${tab}`);
+    } catch (error) {
+      console.error(error);
+      res.redirect('/dashboard?message=Cancellation failed&tab=myBookings');
     }
-    
-    // Find booking
-    const booking = await Booking.findById(bookingId);
-    if (!booking) {
-      return res.redirect('/dashboard?error=Booking not found&tab=my-bookings');
+  });
+  // Delete booking (only for completed)
+app.get('/delete/:id', isAuthenticated, async (req, res) => {
+    try {
+      const bookingId = req.params.id;
+      const userId = req.session.userId;
+      const tab = req.query.tab || 'myBookings';
+      
+      const booking = await Booking.findOne({ _id: bookingId, userId });
+      
+      if (!booking) {
+        return res.redirect(`/dashboard?message=Booking not found&tab=${tab}`);
+      }
+      
+      if (booking.status !== 'completed') {
+        return res.redirect(`/dashboard?message=Only completed bookings can be deleted&tab=${tab}`);
+      }
+      
+      // Update the flag instead of deleting
+      await Booking.updateOne(
+        { _id: bookingId, userId }, 
+        { isDeletedByUser: true }
+      );
+      
+      res.redirect(`/dashboard?message=Booking removed from your list&tab=${tab}`);
+    } catch (error) {
+      console.error(error);
+      res.redirect(`/dashboard?message=Removal failed&tab=myBookings`);
     }
-    
-    // Check if user owns this booking
-    if (booking.userId.toString() !== req.session.userId) {
-      return res.redirect('/dashboard?error=You can only update your own bookings&tab=my-bookings');
-    }
-    
-    // Check if booking is already completed or cancelled
-    if (booking.status === 'completed' || booking.status === 'cancelled') {
-      return res.redirect('/dashboard?error=Cannot update completed or cancelled bookings&tab=my-bookings');
-    }
-    
-    // Check for conflicting bookings
-    const conflict = await checkBookingConflict(avHall, date, startTime, endTime, bookingId);
-    if (conflict) {
-      return res.redirect(`/dashboard?error=Hall already booked for this time by ${conflict.userName}&tab=my-bookings`);
-    }
-    
-    // Update booking
-    booking.reason = reason;
-    booking.avHall = avHall;
-    booking.date = date;
-    booking.startTime = startTime;
-    booking.endTime = endTime;
-    
-    await booking.save();
-    res.redirect('/dashboard?success=Booking updated successfully&tab=my-bookings');
-  } catch (error) {
-    console.error('Update error:', error);
-    res.redirect('/dashboard?error=Update failed. Please try again.&tab=my-bookings');
-  }
-});
-// Create a new schema for hidden bookings
-const hiddenBookingSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  bookingId: { type: mongoose.Schema.Types.ObjectId, ref: 'Booking', required: true }
-});
+  });
 
-const HiddenBooking = mongoose.model('HiddenBooking', hiddenBookingSchema);
-
-app.post('/delete/:id', async (req, res) => {
-  if (!req.session.userId) {
-    return res.redirect('/');
-  }
-  
-  try {
-    const bookingId = req.params.id;
-    const booking = await Booking.findById(bookingId);
-    
-    // Verify that the booking exists and belongs to the current user
-    if (!booking) {
-      return res.redirect('/dashboard?tab=my-bookings&error=Booking not found');
-    }
-    
-    // Check if user owns this booking
-    if (booking.userId.toString() !== req.session.userId) {
-      return res.redirect('/dashboard?tab=my-bookings&error=Not authorized to hide this booking');
-    }
-    
-    // Verify the booking is completed
-    if (booking.status !== 'completed') {
-      return res.redirect('/dashboard?tab=my-bookings&error=Only completed bookings can be hidden');
-    }
-    
-    // Create a hidden booking record
-    const hiddenBooking = new HiddenBooking({
-      userId: req.session.userId,
-      bookingId: booking._id
-    });
-    await hiddenBooking.save();
-    
-    res.redirect('/dashboard?tab=my-bookings&success=Booking removed from your bookings');
-  } catch (err) {
-    console.error(err);
-    res.redirect('/dashboard?tab=my-bookings&error=Failed to remove booking');
-  }
-});
-// Cancel booking route
-app.post('/cancel/:id', async (req, res) => {
-  if (!req.session.userId) {
-    return res.redirect('/');
-  }
-  
-  try {
-    const bookingId = req.params.id;
-    
-    // Find booking
-    const booking = await Booking.findById(bookingId);
-    if (!booking) {
-      return res.redirect('/dashboard?error=Booking not found&tab=my-bookings');
-    }
-    
-    // Check if user owns this booking
-    if (booking.userId.toString() !== req.session.userId) {
-      return res.redirect('/dashboard?error=You can only cancel your own bookings&tab=my-bookings');
-    }
-    
-    // Check if booking is already completed
-    if (booking.status === 'completed') {
-      return res.redirect('/dashboard?error=Cannot cancel completed bookings&tab=my-bookings');
-    }
-    
-    // Delete the booking instead of marking it as cancelled
-    await Booking.findByIdAndDelete(bookingId);
-    
-    res.redirect('/dashboard?success=Booking cancelled successfully&tab=my-bookings');
-  } catch (error) {
-    console.error('Cancel error:', error);
-    res.redirect('/dashboard?error=Cancellation failed. Please try again.&tab=my-bookings');
-  }
-});
-
-// Logout route
+// Logout
 app.get('/logout', (req, res) => {
   req.session.destroy();
   res.redirect('/');
 });
-// Start server
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

@@ -3,1673 +3,1378 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AV Hall Booking System - Dashboard</title>
+  <title>AV Hall Booking Dashboard</title>
   <style>
-    /* Global Styles */
-    * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-          font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-      
-        :root {
-          --bg-primary: #121212;
-          --bg-secondary: #1e1e1e;
-          --bg-tertiary: #252525;
-          --bg-elevated: #2d2d2d;
-          --text-primary: #e0e0e0;
-          --text-secondary: #a0a0a0;
-          --primary-color: #6366f1;
-          --primary-hover: #4f46e5;
-          --danger-color: #ef4444;
-          --danger-hover: #dc2626;
-          --success-color: #10b981;
-          --success-hover: #059669;
-          --border-color: #333333;
-          --ongoing-color:#f59e08;
-          --shadow-color: rgba(0, 0, 0, 0.5);
-        }
-      
-        body {
-          background-color: var(--bg-primary);
-          color: var(--text-primary);
-          line-height: 1.6;
-          min-height: 100vh;
-        }
-      
-        header {
-          background-color: var(--bg-secondary);
-          color: white;
-          padding: 1.25rem 2rem;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          box-shadow: 0 4px 6px var(--shadow-color);
-          position: sticky;
-          top: 0;
-          z-index: 100;
-        }
-      
-        header h1 {
-          font-weight: 600;
-          font-size: 1.75rem;
-          letter-spacing: -0.5px;
-        }
-      
-        .user-info {
-          display: flex;
-          align-items: center;
-          gap: 1.25rem;
-        }
-      
-        .user-info p {
-          color: var(--text-secondary);
-        }
-      
-        .user-info a {
-          color: white;
-          text-decoration: none;
-          background-color: var(--primary-color);
-          padding: 0.5rem 1.25rem;
-          border-radius: 6px;
-          font-weight: 500;
-          transition: all 0.2s ease;
-        }
-      
-        .user-info a:hover {
-          background-color: var(--primary-hover);
-          transform: translateY(-2px);
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-      
-        /* Container for main content */
-        .container {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 0 1rem;
-        }
-      
-        /* Notification Messages */
-        .error-message, .success-message {
-          padding: 1rem 1.5rem;
-          margin: 1rem auto;
-          border-radius: 8px;
-          text-align: center;
-          font-weight: 500;
-          max-width: 1200px;
-          box-shadow: 0 4px 6px var(--shadow-color);
-          animation: fadeIn 0.3s ease-in-out;
-        }
-      
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      
-        .error-message {
-          background-color: rgba(220, 38, 38, 0.1);
-          color: #ef4444;
-          border-left: 4px solid #ef4444;
-        }
-      
-        .success-message {
-          background-color: rgba(16, 185, 129, 0.1);
-          color: #10b981;
-          border-left: 4px solid #10b981;
-        }
-      /* Add this to your existing style section */
-    .modal-buttons form button[type="submit"] {
-      background-color: #ef4444;
-      color: white;
-      font-weight: bold;
-      transition: background-color 0.2s;
-    }
-    
-    .modal-buttons form button[type="submit"]:hover {
-      background-color: #dc2626;
-    }
-        /* Tab Navigation */
-        .tabs {
-          display: flex;
-          margin: 2rem auto 0;
-          max-width: 1200px;
-          padding: 0 1rem;
-          border-bottom: 1px solid var(--border-color);
-          overflow-x: auto;
-          scrollbar-width: thin;
-          scrollbar-color: var(--primary-color) var(--bg-secondary);
-        }
-      
-        .tabs::-webkit-scrollbar {
-          height: 6px;
-        }
-      
-        .tabs::-webkit-scrollbar-track {
-          background: var(--bg-secondary);
-        }
-      
-        .tabs::-webkit-scrollbar-thumb {
-          background-color: var(--primary-color);
-          border-radius: 6px;
-        }
-      
-        .tab-btn {
-          background: transparent;
-          border: none;
-          padding: 1rem 1.5rem;
-          cursor: pointer;
-          font-size: 1rem;
-          color: var(--text-secondary);
-          position: relative;
-          transition: all 0.3s;
-          white-space: nowrap;
-          outline: none;
-        }
-      
-        .tab-btn:hover {
-          color: var(--text-primary);
-        }
-      
-        .tab-btn.active {
-          color: var(--primary-color);
-          font-weight: 500;
-        }
-      
-        .tab-btn.active::after {
-          content: '';
-          position: absolute;
-          bottom: -1px;
-          left: 0;
-          width: 100%;
-          height: 3px;
-          background-color: var(--primary-color);
-          border-radius: 3px 3px 0 0;
-        }
-      
-        /* Tab Content */
-        .tab-content {
-          padding: 2rem;
-          background: var(--bg-secondary);
-          margin: 0 auto 2rem;
-          border-radius: 0 0 12px 12px;
-          box-shadow: 0 4px 12px var(--shadow-color);
-          max-width: 1200px;
-          animation: fadeIn 0.3s ease-in-out;
-        }
-      
-        .tab-content h2 {
-          color: var(--text-primary);
-          margin-bottom: 1.5rem;
-          font-weight: 600;
-          border-bottom: 1px solid var(--border-color);
-          padding-bottom: 0.75rem;
-          letter-spacing: -0.5px;
-        }
-      
-        /* Tables */
-        table {
-          width: 100%;
-          border-collapse: separate;
-          border-spacing: 0;
-          margin-bottom: 1.5rem;
-          border-radius: 8px;
-          overflow: hidden;
-          box-shadow: 0 2px 8px var(--shadow-color);
-        }
-      
-        th, td {
-          padding: 1rem;
-          text-align: left;
-          border-bottom: 1px solid var(--border-color);
-        }
-      
-        th {
-          background-color: var(--bg-tertiary);
-          font-weight: 600;
-          color: var(--text-primary);
-          position: sticky;
-          top: 0;
-          z-index: 10;
-        }
-      
-        tbody tr {
-          transition: background-color 0.2s;
-        }
-      
-        tbody tr:hover {
-          background-color: var(--bg-tertiary);
-        }
-      
-        /* Responsive table with scroll */
-        .table-container {
-          overflow-x: auto;
-          margin-bottom: 1.5rem;
-          border-radius: 8px;
-          box-shadow: 0 2px 8px var(--shadow-color);
-        }
-      
-        /* Forms */
-        form div {
-          margin-bottom: 1.5rem;
-        }
-      
-        label {
-          display: block;
-          margin-bottom: 0.5rem;
-          color: var(--text-primary);
-          font-weight: 500;
-        }
-      
-        input, select {
-          width: 100%;
-          padding: 0.875rem 1rem;
-          border: 1px solid var(--border-color);
-          border-radius: 8px;
-          font-size: 1rem;
-          background-color: var(--bg-tertiary);
-          color: var(--text-primary);
-          transition: all 0.3s;
-        }
-      
-        input:focus, select:focus {
-          border-color: var(--primary-color);
-          box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
-          outline: none;
-        }
-      
-        button {
-          background-color: var(--primary-color);
-          color: white;
-          border: none;
-          padding: 0.875rem 1.5rem;
-          font-size: 1rem;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: all 0.2s;
-          font-weight: 500;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-        }
-      
-        button:hover {
-          background-color: var(--primary-hover);
-          transform: translateY(-2px);
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-      
-        button[type="button"] {
-          background-color: var(--bg-elevated);
-          color: var(--text-primary);
-        }
-      
-        button[type="button"]:hover {
-          background-color: var(--bg-tertiary);
-        }
-      
-      /* Make calendar icon white */
-      input[type="date"]::-webkit-calendar-picker-indicator {
-        filter: invert(1);
-      }
-      /* Make calendar icon white */
-      input[type="time"]::-webkit-calendar-picker-indicator {
-        filter: invert(1);
-      }
-        /* Edit Form */
-        #edit-form {
-          margin-top: 2rem;
-          padding: 2rem;
-          border: 1px solid var(--border-color);
-          border-radius: 12px;
-          background-color: var(--bg-tertiary);
-          box-shadow: 0 4px 12px var(--shadow-color);
-          animation: fadeIn 0.3s ease-in-out;
-        }
-      
-        #edit-form h3 {
-          margin-bottom: 1.5rem;
-          color: var(--text-primary);
-          font-weight: 600;
-          border-bottom: 1px solid var(--border-color);
-          padding-bottom: 0.75rem;
-          letter-spacing: -0.5px;
-        }
-      
-        /* Action Buttons in Table */
-        .action-buttons {
-          display: flex;
-          gap: 0.5rem;
-          flex-wrap: wrap;
-        }
-      
-        td button, td a {
-          background-color: var(--primary-color);
-          color: white;
-          border: none;
-          padding: 0.5rem 1rem;
-          font-size: 0.875rem;
-          border-radius: 6px;
-          cursor: pointer;
-          text-decoration: none;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.2s;
-          font-weight: 500;
-        }
-      
-        td button:hover, td a:hover {
-          background-color: var(--primary-hover);
-          transform: translateY(-2px);
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-      
-        td a {
-          background-color: var(--danger-color);
-        }
-      
-        td a:hover {
-          background-color: var(--danger-hover);
-        }
-      
-        /* Status Indicators */
-        .status {
-          display: inline-block;
-          padding: 0.25rem 0.5rem;
-          border-radius: 6px;
-          font-size: 0.875rem;
-          font-weight: 500;
-        }
-      
-        .status-booked {
-          background-color: rgba(99, 102, 241, 0.15);
-          color: var(--primary-color);
-        }
-      
-        .status-cancelled {
-          background-color: rgba(239, 68, 68, 0.15);
-          color: var(--danger-color);
-        }
-      
-        .status-completed {
-          background-color: rgba(16, 185, 129, 0.15);
-          color: var(--success-color);
-        }
-      
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
-          header {
-            padding: 1rem;
-            flex-direction: column;
-            gap: 1rem;
-          }
-          
-          .user-info {
-            width: 100%;
-            justify-content: space-between;
-          }
-          
-          .tab-content {
-            padding: 1.5rem 1rem;
-          }
-          
-          input, select, button {
-            padding: 0.75rem;
-          }
-          
-          th, td {
-            padding: 0.75rem 0.5rem;
-          }
-          
-          .action-buttons {
-            flex-direction: column;
-          }
-          
-          td button, td a {
-            width: 100%;
-            margin-bottom: 0.25rem;
-          }
-        }
-      
-        @media (max-width: 480px) {
-          .tab-btn {
-            padding: 0.75rem 1rem;
-            font-size: 0.875rem;
-          }
-          
-          h1 {
-            font-size: 1.5rem;
-          }
-          
-          #edit-form {
-            padding: 1rem;
-          }
-        }
-      
-        /* Filter Styles */
-      .filter-container {
-        position: relative;
-      }
-      
-      .filter-btn {
-        background-color: var(--bg-elevated);
-        color: var(--text-primary);
-        border: 1px solid var(--border-color);
-        padding: 0.5rem 1rem;
-        border-radius: 6px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.875rem;
-      }
-      
-      .filter-btn:hover {
-        background-color: var(--bg-tertiary);
-      }
-      
-      .filter-btn svg {
-        width: 16px;
-        height: 16px;
-      }
-      
-      .filter-dropdown {
-        position: absolute;
-        top: calc(100% + 0.5rem);
-        right: 0;
-        background-color: var(--bg-elevated);
-        border: 1px solid var(--border-color);
-        border-radius: 6px;
-        padding: 1rem;
-        min-width: 200px;
-        z-index: 50;
-        box-shadow: 0 4px 12px var(--shadow-color);
-        animation: fadeIn 0.2s ease-in-out;
-      }
-      
-      .filter-option {
-        display: flex;
-        align-items: center;
-        margin-bottom: 0.75rem;
-      }
-      
-      .filter-option label {
-        margin-bottom: 0;
-        margin-left: 0.5rem;
-        cursor: pointer;
-      }
-      
-      .filter-option input[type="checkbox"] {
-        width: auto;
-        cursor: pointer;
-      }
-      
-      .apply-filter-btn {
-        width: 100%;
-        margin-top: 0.5rem;
-        background-color: var(--primary-color);
-        color: white;
-        padding: 0.5rem;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-      
-      .apply-filter-btn:hover {
-        background-color: var(--primary-hover);
-      }
-      
-        /* Modal Styles */
-      .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0, 0, 0, 0.7);
-        animation: fadeIn 0.3s;
-      }
-      
-      .modal-content {
-        background-color: var(--bg-elevated);
-        margin: 15% auto;
-        padding: 2rem;
-        border-radius: 12px;
-        width: 90%;
-        max-width: 450px;
-        box-shadow: 0 8px 20px var(--shadow-color);
-        animation: slideIn 0.3s;
-      }
-      
-      .modal h3 {
-        margin-bottom: 1rem;
-        color: var(--text-primary);
-        font-weight: 600;
-      }
-      
-      .modal p {
-        margin-bottom: 1.5rem;
-        color: var(--text-primary);
-      }
-      .status {
-      text-transform: capitalize;
-    }
-      .modal-buttons {
-        display: flex;
-        justify-content: flex-end;
-        gap: 1rem;
-      }
-      
-      .modal-btn {
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s ease;
-      }
-      
-      .modal-btn:hover {
-        transform: translateY(-2px);
-      }
-      
-      .cancel-btn {
-        background-color: var(--danger-color); /* #ef4444 */
-        color: white;
-      }
-      
-      .cancel-btn:hover {
-        background-color: var(--danger-hover); /* #dc2626 */
-      }
-      
-      @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-      }
-      
-      @keyframes slideIn {
-        from { transform: translateY(-50px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-      }
-      /* Add this to ensure the modal confirm button is the correct color */
-      .modal-btn.confirm-btn {
-        background-color: #ef4444 !important; /* Using direct color value */
-        color: white;
-      }
-      .status-booked {
-        background-color: rgba(239, 68, 68, 0.15);
-        color: var(--danger-color);
-      }
-      
-      .status-ongoing {
-        background-color: rgba(248, 160, 10, 0.15);
-        color: var(--ongoing-color);
-      }
-      
-      .status-completed {
-        background-color: rgba(16, 185, 129, 0.15);
-        color: var(--success-color);
-      }
-      
-      .status-cancelled {
-        background-color: rgba(239, 68, 68, 0.15);
-        color: var(--danger-color);
-      }
-      
-      .modal-btn.confirm-btn:hover {
-        background-color: #dc2626 !important; /* Using direct color value */
-      }
-      /* Make table rows display as cards on small screens */
-    
-      /* Only apply these styles on smaller screens */
-    @media screen and (max-width: 768px) {
-      /* Specific selector for the action buttons in mobile card view */
-      #my-bookings-table tbody tr td[data-label="Actions"] {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        gap: 5px;
-        align-items: center;
-      }
-      
-      /* Make the buttons equal width in the mobile view */
-      #my-bookings-table tbody tr td[data-label="Actions"] button {
-        flex: 1;
-        margin: 0 5px;
-        min-width: 0;
-      }
-      
-      /* Remove any margins that might be causing stacking */
-      #my-bookings-table tbody tr td[data-label="Actions"] .action-buttons {
-        display: flex;
-        width: 100%;
-        gap: 10px;
-      }
-    }
-    @media screen and (max-width: 768px) {
-      #all-bookings-table thead, 
-      #my-bookings-table thead {
-        display: none; /* Hide table headers */
-      }
-      
-      #all-bookings-table tbody tr, 
-      #my-bookings-table tbody tr {
-        display: block;
-        margin-bottom: 15px;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        background-color: #222;
-        position: relative;
-        padding-top: 40px; /* Space for status at top */
-      }
-      
-      
-      /* Status at top of card */
-      #all-bookings-table .status-container, 
-      #my-bookings-table .status-container {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        padding: 8px;
-        text-align: center;
-        border-bottom: 1px solid #333;
-        background-color: #1a1a1a;
-        border-radius: 8px 8px 0 0;
-        display: flex;
-        justify-content: center;
-      }
-      
-      /* Style cells for card layout */
-      #all-bookings-table tbody td, 
-      #my-bookings-table tbody td {
-        display: flex;
-        text-align: left;
-        padding: 10px 12px;
-        border-bottom: 1px solid #333;
-      }
-      
-      /* Hide the original status cell */
-      #all-bookings-table tbody td.original-status-cell, 
-      #my-bookings-table tbody td.original-status-cell {
-        display: none;
-      }
-      
-      /* Labels for each field */
-      #all-bookings-table tbody td:before, 
-      #my-bookings-table tbody td:before {
-        content: attr(data-label);
-        font-weight: bold;
-        width: 95px;
-        min-width: 95px;
-        padding-right: 10px;
-        color: #999;
-      }
-    }
-    #edit-form {
-      position: fixed; /* Keep it fixed */
-      top: 50%; /* Center vertically */
-      left: 50%; /* Center horizontally */
-      transform: translate(-50%, -50%); /* Adjust to center */
-      z-index: 2000; /* Ensure it appears above other elements */
-      margin: 0; /* Remove margin */
-      padding: 2rem;
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      background-color: var(--bg-tertiary);
-      box-shadow: 0 4px 12px var(--shadow-color);
-      animation: fadeIn 0.3s ease-in-out;
-      display: none; /* Keep it hidden initially */
-      max-width: 90%; /* Set a maximum width */
-      width: 600px; /* Set a fixed width */
-      max-height: 80%; /* Set a maximum height */
-      overflow-y: auto; /* Enable vertical scrolling */
-    }
+/* Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+}
 
-    .delete-btn {
-  background-color: var(--danger-color); /* #ef4444 */
+:root {
+  --bg-primary: #121212;
+  --bg-secondary: #1e1e1e;
+  --bg-tertiary: #252525;
+  --bg-elevated: #2d2d2d;
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --primary-color: #6366f1;
+  --primary-hover: #4f46e5;
+  --danger-color: #ef4444;
+  --danger-hover: #dc2626;
+  --success-color: #10b981;
+  --success-hover: #059669;
+  --border-color: #333333;
+  --ongoing-color: #f59e08;
+  --shadow-color: rgba(0, 0, 0, 0.5);
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+header {
+  background-color: var(--bg-secondary);
+  color: white;
+  padding: 1.25rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 6px var(--shadow-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+header h1 {
+  font-weight: 600;
+  font-size: 1.75rem;
+  letter-spacing: -0.5px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.user-info p {
+  color: var(--text-secondary);
+}
+
+.user-info a {
+  color: white;
+  text-decoration: none;
+  background-color: var(--primary-color);
+  padding: 0.5rem 1.25rem;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.user-info a:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Container for main content */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Notification Messages */
+.error-message, .success-message {
+  padding: 1rem 1.5rem;
+  margin: 1rem auto;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 500;
+  max-width: 1200px;
+  box-shadow: 0 4px 6px var(--shadow-color);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.error-message {
+  background-color: rgba(220, 38, 38, 0.1);
+  color: #ef4444;
+  border-left: 4px solid #ef4444;
+}
+
+.success-message {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border-left: 4px solid #10b981;
+}
+
+/* Tabs Navigation - Updated styles */
+.tabs {
+  display: flex;
+  margin: 2rem auto 0;
+  max-width: 1200px;
+  padding: 0 1rem;
+  border-bottom: 1px solid var(--border-color);
+  overflow-x: visible;
+  justify-content: flex-start; /* Keep left alignment on large screens */
+  flex-wrap: nowrap; /* Prevent wrapping */
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  position: relative;
+  transition: all 0.3s;
+  white-space: nowrap;
+  outline: none;
+  flex: 0 0 auto; /* Keep this to prevent tabs from growing */
+}
+
+.tab-btn:hover {
+  color: var(--text-primary);
+}
+
+.tab-btn.active {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: var(--primary-color);
+  border-radius: 3px 3px 0 0;
+}
+
+/* Tab Content */
+.tab-content {
+  padding: 2rem;
+  background: var(--bg-secondary);
+  margin: 0 auto 2rem;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  max-width: 1200px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.tab-content h2 {
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.75rem;
+  letter-spacing: -0.5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-bottom: 1.5rem;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+th, td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+th {
+  background-color: var(--bg-tertiary);
+  font-weight: 600;
+  color: var(--text-primary);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+tbody tr {
+  transition: background-color 0.2s;
+}
+
+tbody tr:hover {
+  background-color: var(--bg-tertiary);
+}
+
+/* Responsive table with scroll */
+.table-container {
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+/* Forms */
+form div {
+  margin-bottom: 1.5rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+input, select {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  transition: all 0.3s;
+}
+
+input:focus, select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+  outline: none;
+}
+
+button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+button:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+button[type="button"] {
+  background-color: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+button[type="button"]:hover {
+  background-color: var(--bg-tertiary);
+}
+
+/* Make calendar icon white */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+/* Status Indicators */
+.status {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-booked {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: var(--danger-color);
+}
+
+.status-ongoing {
+  background-color: rgba(248, 160, 10, 0.15);
+  color: var(--ongoing-color);
+}
+
+.status-completed {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: var(--success-color);
+}
+
+.status-cancelled {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: var(--danger-color);
+}
+
+/* Action Buttons in Table */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+td button, td a {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+td button:hover, td a:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+td a {
+  background-color: var(--danger-color);
+}
+
+td a:hover {
+  background-color: var(--danger-hover);
+}
+
+/* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* Changed from auto to hidden to prevent modal scrolling */
+  background-color: rgba(0, 0, 0, 0.7);
+  animation: fadeIn 0.3s;
+}
+
+.modal-content {
+  background-color: var(--bg-elevated);
+  margin: 0 auto; /* Changed from percentage to auto */
+  padding: 2rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 450px;
+  max-height: 80vh;
+  box-shadow: 0 8px 20px var(--shadow-color);
+  animation: slideIn 0.3s;
+  overflow-y: auto;
+  position: absolute; /* Changed from relative to absolute */
+  top: 50%; /* Added to center vertically */
+  left: 50%; /* Added to center horizontally */
+  transform: translate(-50%, -50%); /* Added to ensure perfect centering */
+}
+
+.modal h3, .modal h2 {
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.modal p {
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+}
+
+.close {
+  color: var(--text-secondary);
+  float: right;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.close:hover,
+.close:focus {
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  position: sticky;
+  bottom: 0;
+  padding-top: 1rem;
+  background-color: var(--bg-elevated);
+}
+
+.modal-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-btn:hover {
+  transform: translateY(-2px);
+}
+
+.modal-buttons form button[type="submit"] {
+  background-color: var(--danger-color);
+  color: white;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.modal-buttons form button[type="submit"]:hover {
+  background-color: var(--danger-hover);
+}
+
+.cancel-btn {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+.cancel-btn:hover {
+  background-color: var(--danger-hover);
+}
+
+.delete-btn {
+  background-color: var(--danger-color);
   color: white;
 }
 
 .delete-btn:hover {
-  background-color: var(--danger-hover); /* #dc2626 */
+  background-color: var(--danger-hover);
+}
+
+.modal-btn.confirm-btn {
+  background-color: #ef4444 !important;
+  color: white;
+}
+
+.modal-btn.confirm-btn:hover {
+  background-color: #dc2626 !important;
+}
+
+/* Update the All Bookings title area to include the filter */
+#allBookings h2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Adjust the filter container positioning */
+.filter-container {
+  position: relative;
+  margin-bottom: 0; /* Changed from 1.5rem to 0 */
+  display: inline-block;
+}
+
+/* Style the "Keep Booking" button to be blue */
+button[onclick="closeCancelModal()"] {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+button[onclick="closeCancelModal()"]:hover {
+  background-color: var(--primary-hover);
+}
+
+/* Professional Filter Button */
+.filter-btn {
+  background-color: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+  background-color: var(--bg-tertiary);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.filter-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Improved Filter Dropdown Styles */
+.filter-dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: 8px; /* Increased from 6px to 8px */
+  padding: 1.25rem; /* Increased from 1rem to 1.25rem */
+  min-width: 220px; /* Increased from 200px to 220px */
+  z-index: 50;
+  box-shadow: 0 8px 16px var(--shadow-color); /* Enhanced shadow */
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  transition: all 0.2s ease; /* Added transition */
+}
+
+.filter-option:hover {
+  transform: translateX(2px); /* Slight hover effect */
+}
+
+.filter-option label {
+  margin-bottom: 0;
+  margin-left: 0.75rem; /* Increased from 0.5rem to 0.75rem */
+  cursor: pointer;
+  font-weight: 400; /* Changed from default to 400 */
+  color: var(--text-secondary); /* Changed from default to secondary */
+  transition: color 0.2s ease; /* Added transition */
+}
+
+.filter-option:hover label {
+  color: var(--text-primary); /* Change color on hover */
+}
+
+.filter-option input[type="checkbox"],
+.filter-option input[type="radio"] {
+  width: 16px; /* Set fixed width */
+  height: 16px; /* Set fixed height */
+  cursor: pointer;
+  accent-color: var(--primary-color); /* Change radio button color */
+}
+
+.apply-filter-btn {
+  width: 100%;
+  margin-top: 1rem; /* Increased from 0.5rem to 1rem */
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.75rem; /* Increased from 0.5rem to 0.75rem */
+  border: none;
+  border-radius: 6px; /* Increased from 4px to 6px */
+  cursor: pointer;
+  font-weight: 500; /* Added font-weight */
+  transition: all 0.2s ease; /* Added transition */
+}
+
+.apply-filter-btn:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Edit Form */
+#edit-form {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2000;
+  margin: 0;
+  padding: 2rem;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background-color: var(--bg-tertiary);
+  box-shadow: 0 4px 12px var(--shadow-color);
+  animation: fadeIn 0.3s ease-in-out;
+  display: none;
+  max-width: 90%;
+  width: 600px;
+  max-height: 80%;
+  overflow-y: auto;
+}
+
+#edit-form h3 {
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.75rem;
+  letter-spacing: -0.5px;
+}
+
+/* Edit modal specific styles */
+#editModal .modal-content {
+  max-height: 80vh;
+  overflow-y: auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0; /* Reset margin */
+}
+
+#editForm {
+  overflow-y: auto;
+  max-height: calc(80vh - 120px); /* Allow form to scroll while keeping header and buttons visible */
+}
+
+/* Animations */
+@keyframes slideIn {
+  from { transform: translate(-50%, -60%); opacity: 0; }
+  to { transform: translate(-50%, -50%); opacity: 1; }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  header {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .user-info {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .tab-content {
+    padding: 1.5rem 1rem;
+  }
+  
+  input, select, button {
+    padding: 0.75rem;
+  }
+  
+  th, td {
+    padding: 0.75rem 0.5rem;
+  }
+  
+  .action-buttons {
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  td button, td a {
+    flex: 1;
+    margin: 0 0.25rem;
+    padding: 0.5rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+  
+  /* Make table rows display as cards on small screens */
+  #all-bookings-table thead, 
+  #my-bookings-table thead {
+    display: none;
+  }
+  
+  #all-bookings-table tbody tr, 
+  #my-bookings-table tbody tr {
+    display: block;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    background-color: #222;
+    position: relative;
+    padding-top: 40px;
+  }
+  
+  /* Status at top of card */
+  #all-bookings-table .status-container, 
+  #my-bookings-table .status-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 8px;
+    text-align: center;
+    border-bottom: 1px solid #333;
+    background-color: #1a1a1a;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    justify-content: center;
+  }
+  
+  /* Style cells for card layout */
+  #all-bookings-table tbody td, 
+  #my-bookings-table tbody td {
+    display: flex;
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid #333;
+  }
+  
+  /* Hide the original status cell */
+  #all-bookings-table tbody td.original-status-cell, 
+  #my-bookings-table tbody td.original-status-cell {
+    display: none;
+  }
+  
+  /* Labels for each field */
+  #all-bookings-table tbody td:before, 
+  #my-bookings-table tbody td:before {
+    content: attr(data-label);
+    font-weight: bold;
+    width: 95px;
+    min-width: 95px;
+    padding-right: 10px;
+    color: #999;
+  }
+  
+  /* Specific selector for the action buttons in mobile card view */
+  #my-bookings-table tbody tr td[data-label="Actions"] {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 5px;
+    align-items: center;
+  }
+  
+  /* Make the buttons equal width in the mobile view */
+  #my-bookings-table tbody tr td[data-label="Actions"] button {
+    flex: 1;
+    margin: 0 5px;
+    min-width: 0;
+  }
+  
+  /* Remove any margins that might be causing stacking */
+  #my-bookings-table tbody tr td[data-label="Actions"] .action-buttons {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  
+  .tabs {
+    justify-content: center; /* Center only on smaller screens */
+  }
+  
+  .tab-btn {
+    padding: 1rem; /* Reduce padding slightly on smaller screens */
+  }
+}
+
+@media (max-width: 480px) {
+  .tab-btn {
+    padding: 0.75rem 0.5rem; /* Further reduce padding on very small screens */
+    font-size: 0.875rem; /* Smaller font size for very small screens */
+  }
+
+  
+  h1 {
+    font-size: 1.5rem;
+  }
+  
+  #edit-form {
+    padding: 1rem;
+  }
+  
+  /* Ensure buttons stay on one line even on very small screens */
+  #my-bookings-table tbody tr td[data-label="Actions"] button {
+    font-size: 0.7rem;
+    padding: 0.5rem 0.25rem;
+  }
+  
+  /* Adjust modal content for very small screens */
+  .modal-content {
+    padding: 1.5rem;
+    width: 95%;
+  }
+}
+
+/* Add these styles to the existing CSS */
+
+/* Mobile status container for card view */
+.mobile-status-container {
+  display: none; /* Hidden by default */
+}
+
+/* Styles for the status container in My Bookings */
+#my-bookings-table .mobile-status-container {
+  display: none; /* Hidden by default */
+}
+
+/* Mobile responsive adjustments for My Bookings */
+@media (max-width: 768px) {
+  /* Show mobile status container for My Bookings */
+  #my-bookings-table .mobile-status-container {
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: -220px;
+    right: 0;
+    padding: 8px;
+    justify-content: center;
+    background-color: #1a1a1a;
+    border-radius: 8px 8px 0 0;
+    border-bottom: 1px solid #333;
+  }
+  
+  /* Make sure the row has space for the status header */
+  #my-bookings-table tbody tr {
+    padding-top: 40px;
+    position: relative;
+  }
+  
+  /* Hide the original status cell in the table */
+  #my-bookings-table tbody td[data-label="Status"] {
+    display: none;
+  }
+}
+/* Only show on mobile */
+@media (max-width: 768px) {
+  .mobile-status-container {
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: -220px;
+    right: 0;
+    padding: 8px;
+    justify-content: center;
+    background-color: #1a1a1a;
+    border-radius: 8px 8px 0 0;
+    border-bottom: 1px solid #333;
+  }
+  
+  /* Make sure the row has space for the status header */
+  #all-bookings-table tbody tr {
+    padding-top: 40px;
+    position: relative;
+  }
+  
+  /* Hide the original status cell in the table */
+  #all-bookings-table tbody td[data-label="Status"] {
+    display: none;
+  }
 }
   </style>
 </head>
 <body>
   <header>
-    <h1>AV Hall Booking System</h1>
+    <h1>AV Hall Booking Dashboard</h1>
     <div class="user-info">
-      <p>Welcome, <%= user.name %> (<%= user.department %>)</p>
+      <p>Welcome, <%= userName %> [<%= userDepartment %>]</p>
       <a href="/logout">Logout</a>
     </div>
   </header>
-  
-  <% if (locals.error) { %>
-    <div class="error-message">
-      <%= error %>
+
+  <div class="container">
+    <% if (message) { %>
+      <% if (message.includes('error') || message.includes('failed') || message.includes('invalid')) { %>
+        <div class="error-message" id="message"><%= message %></div>
+      <% } else { %>
+        <div class="success-message" id="message"><%= message %></div>
+      <% } %>
+      <script>
+        setTimeout(function() {
+          document.getElementById('message').style.display = 'none';
+          // Remove message from URL to prevent reappearing on refresh
+          if (window.history && window.history.replaceState) {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('message');
+            window.history.replaceState({}, document.title, url.toString());
+          }
+        }, 3000);
+      </script>
+    <% } %>
+
+    <div class="tabs" id="tabsContainer">
+      <button class="tab-btn active" onclick="openTab('allBookings')">All Bookings</button>
+      <button class="tab-btn" onclick="openTab('myBookings')">My Bookings</button>
+      <button class="tab-btn" onclick="openTab('bookHall')">Book an AV Hall</button>
     </div>
-  <% } %>
-  
-  <% if (locals.success) { %>
-    <div class="success-message">
-      <%= success %>
-    </div>
-  <% } %>
-  
-  <div class="tabs">
-    <button class="tab-btn <%= activeTab === 'all-bookings' ? 'active' : '' %>" onclick="showTab('all-bookings')">All Bookings</button>
-    <button class="tab-btn <%= activeTab === 'my-bookings' ? 'active' : '' %>" onclick="showTab('my-bookings')">My Bookings</button>
-    <button class="tab-btn <%= activeTab === 'book-hall' ? 'active' : '' %>" onclick="showTab('book-hall')">Book AV Hall</button>
-  </div>
-  
-  <div id="all-bookings" class="tab-content" style="<%= activeTab !== 'all-bookings' ? 'display: none;' : '' %>">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h2>All Bookings</h2>
-        <div class="filter-container">
-            <button id="filter-btn" class="filter-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-                </svg>
-                Filter
-            </button>
-            <div id="filter-dropdown" class="filter-dropdown" style="display: none;">
-                <div class="filter-option">
-                    <input type="checkbox" id="filter-all" checked>
-                    <label for="filter-all">All</label>
-                </div>
-                <div class="filter-option">
-                    <input type="checkbox" id="filter-ongoing">
-                    <label for="filter-ongoing">Ongoing</label>
-                </div>
-                <div class="filter-option">
-                    <input type="checkbox" id="filter-booked">
-                    <label for="filter-booked">Booked</label>
-                </div>
-                <div class="filter-option">
-                    <input type="checkbox" id="filter-completed">
-                    <label for="filter-completed">Completed</label>
-                </div>
-                <button id="apply-filter" class="apply-filter-btn">Apply</button>
+
+    <div id="allBookings" class="tab-content tabContent">
+      <h2>All Bookings</h2>
+      
+      <div class="filter-container">
+        <button class="filter-btn" onclick="toggleFilter()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z"/>
+          </svg>
+          Filter
+        </button>
+        <div class="filter-dropdown" id="filterDropdown" style="display: none;">
+          <form action="/dashboard" method="GET">
+            <div class="filter-option">
+              <input type="radio" id="filter-all" name="filter" value="all" <%= filter === 'all' ? 'checked' : '' %>>
+              <label for="filter-all">All</label>
             </div>
+            <div class="filter-option">
+              <input type="radio" id="filter-booked" name="filter" value="booked" <%= filter === 'booked' ? 'checked' : '' %>>
+              <label for="filter-booked">Booked</label>
+            </div>
+            <div class="filter-option">
+              <input type="radio" id="filter-ongoing" name="filter" value="ongoing" <%= filter === 'ongoing' ? 'checked' : '' %>>
+              <label for="filter-ongoing">Ongoing</label>
+            </div>
+            <div class="filter-option">
+              <input type="radio" id="filter-completed" name="filter" value="completed" <%= filter === 'completed' ? 'checked' : '' %>>
+              <label for="filter-completed">Completed</label>
+            </div>
+            <button type="submit" class="apply-filter-btn">Apply Filter</button>
+          </form>
         </div>
+      </div>
+      
+      <div class="table-container">
+        <table id="all-bookings-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Reason</th>
+              <th>AV Hall</th>
+              <th>Date</th>
+              <th>Start Time</th>
+              <th>End Time</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (allBookings.length === 0) { %>
+              <tr>
+                <td colspan="7">No bookings found</td>
+              </tr>
+            <% } else { %>
+              <% allBookings.forEach(booking => { %>
+                <tr>
+                  <td data-label="Name"><%= booking.userName %></td>
+                  <td data-label="Reason"><%= booking.reason %></td>
+                  <td data-label="AV Hall"><%= booking.avHall %></td>
+                  <td data-label="Date"><%= moment(booking.date).format('DD-MM-YYYY') %></td>
+                  <td data-label="Start Time"><%= moment(booking.startTime, 'HH:mm').format('hh:mm A') %></td>
+                  <td data-label="End Time"><%= moment(booking.endTime, 'HH:mm').format('hh:mm A') %></td>
+                  <td data-label="Status" class="original-status-cell">
+                    <div class="status-container">
+                      <span class="status status-<%= booking.status.toLowerCase() %>"><%= booking.status %></span>
+                    </div>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
     </div>
     
-    <div class="table-container">
-        <table id="all-bookings-table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Reason</th>
-                    <th>AV Hall</th>
-                    <th>Date</th>
-                    <th>Start Time</th>
-                    <th>End Time</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% if (allBookings.length === 0) { %>
-                    <tr>
-                        <td colspan="7" id="no-bookings-message">No bookings found</td>
-                    </tr>
-                <% } else { %>
-                    <% allBookings.forEach(booking => { %>
-                        <tr>
-                            <td><%= booking.userName %></td>
-                            <td><%= booking.reason %></td>
-                            <td><%= booking.avHall %></td>
-                            <td><%= booking.date.toISOString().split('T')[0] %></td>
-                            <td><%= formatTime(booking.startTime) %></td>
-                            <td><%= formatTime(booking.endTime) %></td>
-                            <td>
-                                <span class="status status-<%= booking.status.toLowerCase() %>">
-                                    <%= booking.status %>
-                                </span>
-                            </td>
-                        </tr>
-                    <% }) %>
-                <% } %>
-            </tbody>
-        </table>
-    </div>
-</div>
-  
-  <div id="my-bookings" class="tab-content" style="<%= activeTab !== 'my-bookings' ? 'display: none;' : '' %>">
-    <h2>My Bookings</h2>
-    <div class="table-container">
-      <table id="my-bookings-table">
-        <thead>
-          <tr>
-            <th>Reason</th>
-            <th>AV Hall</th>
-            <th>Date</th>
-            <th>Start Time</th>
-            <th>End Time</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% if (userBookings.length === 0) { %>
+    <div id="myBookings" class="tab-content tabContent" style="display: none;">
+      <h2>My Bookings</h2>
+      <div class="table-container">
+        <table id="my-bookings-table">
+          <thead>
             <tr>
-              <td colspan="7">You have no bookings</td>
+              <th>Reason</th>
+              <th>AV Hall</th>
+              <th>Date</th>
+              <th>Start Time</th>
+              <th>End Time</th>
+              <th>Status</th>
+              <th>Actions</th>
             </tr>
-          <% } else { %>
-            <!-- First, modify the table rendering for My Bookings to allow editing ongoing bookings -->
-            <% userBookings.forEach(booking => { %>
+          </thead>
+          <tbody>
+            <% if (myBookings.length === 0) { %>
               <tr>
-                <td><%= booking.reason %></td>
-                <td><%= booking.avHall %></td>
-                <td><%= booking.date.toISOString().split('T')[0] %></td>
-                <td><%= formatTime(booking.startTime) %></td>
-                <td><%= formatTime(booking.endTime) %></td> 
-                <td>
-                  <span class="status status-<%= booking.status.toLowerCase() %>">
-                    <%= booking.status.charAt(0).toUpperCase() + booking.status.slice(1) %>
-                  </span>
-                </td>
-                <td class="action-buttons">
-                  <% if (booking.status === 'booked' || booking.status === 'ongoing') { %>
-                    <button onclick="showEditForm('<%= booking._id %>', '<%= booking.reason %>', '<%= booking.avHall %>', '<%= booking.date.toISOString().split('T')[0] %>', '<%= booking.startTime %>', '<%= booking.endTime %>')">Edit</button>
-                    <button class="cancel-btn" onclick="showCancelModal('<%= booking._id %>')">Cancel</button>
-                  <% } else if (booking.status === 'completed') { %>
-                    <button class="delete-btn" onclick="showDeleteModal('<%= booking._id %>')">Delete</button>
-                  <% } %>
-                </td>
+                <td colspan="7">No bookings found</td>
               </tr>
-            <% }) %>
-          <% } %>
-        </tbody>
-      </table>
+            <% } else { %>
+              <% myBookings.forEach(booking => { %>
+                <tr>
+                  <td data-label="Reason"><%= booking.reason %></td>
+                  <td data-label="AV Hall"><%= booking.avHall %></td>
+                  <td data-label="Date"><%= moment(booking.date).format('DD-MM-YYYY') %></td>
+                  <td data-label="Start Time"><%= moment(booking.startTime, 'HH:mm').format('hh:mm A') %></td>
+                  <td data-label="End Time"><%= moment(booking.endTime, 'HH:mm').format('hh:mm A') %></td>
+                  <td data-label="Status" class="original-status-cell">
+                    <div class="status-container">
+                      <span class="status status-<%= booking.status.toLowerCase() %>"><%= booking.status %></span>
+                    </div>
+                  </td>
+                  <td data-label="Actions">
+                    <div class="action-buttons">
+                      <% if (booking.status === 'completed') { %>
+                        <button onclick="openDeleteModal('<%= booking._id %>')" class="delete-btn">Delete</button>
+                      <% } else { %>
+                        <button onclick="openEditModal('<%= booking._id %>', '<%= booking.reason %>', '<%= booking.avHall %>', '<%= moment(booking.date).format('YYYY-MM-DD') %>', '<%= booking.startTime %>', '<%= booking.endTime %>')">Edit</button>
+                        <button onclick="openCancelModal('<%= booking._id %>')" class="cancel-btn">Cancel</button>
+                      <% } %>
+                    </div>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
     </div>
-    <!-- Delete Confirmation Modal -->
-<div id="delete-modal" class="modal" style="display: none;">
-  <div class="modal-content">
-    <h3>Delete Booking</h3>
-    <p>Are you sure you want to delete this completed booking? This action cannot be undone.</p>
-    <div class="modal-buttons">
-      <button id="modal-delete-cancel" onclick="hideDeleteModal()">Cancel</button>
-      <form id="delete-form" action="/delete/" method="POST">
-        <button type="submit">Delete</button>
-      </form>
-    </div>
-  </div>
-</div>
-    <div id="edit-form" style="display: none;">
-      <h3>Edit Booking</h3>
-      <form id="booking-edit-form" action="/update/" method="POST">
+    
+    <div id="bookHall" class="tab-content tabContent" style="display: none;">
+      <h2>Book an AV Hall</h2>
+      <form action="/book" method="POST">
         <div>
-          <label for="edit-reason">Reason:</label>
-          <input type="text" id="edit-reason" name="reason" required>
+          <label for="reason">Reason:</label>
+          <input type="text" id="reason" name="reason" placeholder="Enter Event" required>
         </div>
         <div>
-          <label for="edit-avHall">AV Hall:</label>
-          <select id="edit-avHall" name="avHall" required>
+          <label for="avHall">AV Hall:</label>
+          <select id="avHall" name="avHall" required>
             <% avHalls.forEach(hall => { %>
               <option value="<%= hall %>"><%= hall %></option>
-            <% }) %>
+            <% }); %>
           </select>
         </div>
         <div>
-          <label for="edit-date">Date:</label>
-          <input type="date" id="edit-date" name="date" required>
+          <label for="date">Date:</label>
+          <input type="date" id="date" name="date" min="<%= moment().format('YYYY-MM-DD') %>" required>
         </div>
         <div>
-          <label for="edit-startTime">Start Time:</label>
-          <input type="time" id="edit-startTime" name="startTime" required>
+          <label for="startTime">Start Time:</label>
+          <input type="time" id="startTime" name="startTime" required>
         </div>
         <div>
-          <label for="edit-endTime">End Time:</label>
-          <input type="time" id="edit-endTime" name="endTime" required>
+          <label for="endTime">End Time:</label>
+          <input type="time" id="endTime" name="endTime" required>
         </div>
-        <div class="form-actions">
-          <button type="submit">Update Booking</button>
-          <button type="button" onclick="hideEditForm()">Cancel</button>
-        </div>
+        <input type="hidden" name="tab" value="bookHall">
+        <button type="submit">Book Hall</button>
       </form>
     </div>
   </div>
   
-  <div id="book-hall" class="tab-content" style="<%= activeTab !== 'book-hall' ? 'display: none;' : '' %>">
-    <h2>Book AV Hall</h2>
-    <form action="/book" method="POST">
-      <div>
-        <label for="reason">Reason for Booking:</label>
-        <input type="text" id="reason" name="reason" placeholder="Enter Reason for Booking" required>
-      </div>
-      <div>
-        <label for="avHall">Select AV Hall:</label>
-        <select id="avHall" name="avHall" required>
-          <% avHalls.forEach(hall => { %>
-            <option value="<%= hall %>"><%= hall %></option>
-          <% }) %>
-        </select>
-      </div>
-      <div>
-        <label for="date">Date:</label>
-        <input type="date" id="date" name="date" required>
-      </div>
-      <div>
-        <label for="startTime">Start Time:</label>
-        <input type="time" id="startTime" name="startTime" required>
-      </div>
-      <div>
-        <label for="endTime">End Time:</label>
-        <input type="time" id="endTime" name="endTime" required>
-      </div>
-      <button type="submit">Book Hall</button>
-    </form>
-  </div>
-  
-  <!-- Custom Modal -->
-  <div id="cancel-modal" class="modal" style="display: none;">
+  <!-- Edit Modal -->
+  <div id="editModal" class="modal">
     <div class="modal-content">
-      <h3>Confirmation</h3>
-      <p>Are you sure you want to cancel this booking?</p>
+      <span class="close" onclick="closeEditModal()">&times;</span>
+      <h2>Edit Booking</h2>
+      <form id="editForm" action="/update" method="POST">
+        <div>
+          <label for="editReason">Reason:</label>
+          <input type="text" id="editReason" name="reason" required>
+        </div>
+        <div>
+          <label for="editAvHall">AV Hall:</label>
+          <select id="editAvHall" name="avHall" required>
+            <% avHalls.forEach(hall => { %>
+              <option value="<%= hall %>"><%= hall %></option>
+            <% }); %>
+          </select>
+        </div>
+        <div>
+          <label for="editDate">Date:</label>
+          <input type="date" id="editDate" name="date" min="<%= moment().format('YYYY-MM-DD') %>" required>
+        </div>
+        <div>
+          <label for="editStartTime">Start Time:</label>
+          <input type="time" id="editStartTime" name="startTime" required>
+        </div>
+        <div>
+          <label for="editEndTime">End Time:</label>
+          <input type="time" id="editEndTime" name="endTime" required>
+        </div>
+        <input type="hidden" name="tab" value="myBookings">
+        <div class="modal-buttons">
+          <button type="submit">Update Booking</button>
+          <button type="button" onclick="closeEditModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeDeleteModal()">&times;</span>
+      <h2>Delete Booking</h2>
+      <p>Are you sure you want to delete this booking?</p>
       <div class="modal-buttons">
-        <button id="modal-cancel" onclick="hideCancelModal()">Close</button>
-        <form id="cancel-form" action="/cancel/" method="POST">
-          <button type="submit">Confirm Cancel</button>
-        </form>
+        <button type="button" onclick="closeDeleteModal()">Cancel</button>
+        <button id="confirmDeleteLink" class="modal-btn confirm-btn" onclick="confirmDelete()">Delete</button>
       </div>
     </div>
   </div>
   
+  <!-- Cancel Confirmation Modal -->
+  <div id="cancelModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeCancelModal()">&times;</span>
+      <h2>Cancel Booking</h2>
+      <p>Are you sure you want to cancel this booking?</p>
+      <div class="modal-buttons">
+        <button type="button" onclick="closeCancelModal()">Keep Booking</button>
+        <button id="confirmCancelLink" class="modal-btn confirm-btn" onclick="confirmCancel()">Cancel Booking</button>
+      </div>
+    </div>
+  </div>
   
   <script>
-    // Set active tab based on URL parameter
+    // Store booking IDs for modal actions
+    let currentBookingId = '';
+    
+    function openTab(tabName) {
+      var i, tabContent, tabButtons;
+      tabContent = document.getElementsByClassName("tabContent");
+      for (i = 0; i < tabContent.length; i++) {
+        tabContent[i].style.display = "none";
+      }
+      
+      // Remove active class from all tabs
+      tabButtons = document.getElementsByClassName("tab-btn");
+      for (i = 0; i < tabButtons.length; i++) {
+        tabButtons[i].className = tabButtons[i].className.replace(" active", "");
+      }
+      
+      // Show the selected tab and add active class
+      document.getElementById(tabName).style.display = "block";
+      document.querySelector(`button[onclick="openTab('${tabName}')"]`).className += " active";
+      
+      // Store the active tab in local storage
+      localStorage.setItem('activeTab', tabName);
+    }
+    
+    // Filter dropdown toggle
+    function toggleFilter() {
+      const dropdown = document.getElementById('filterDropdown');
+      dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+    }
+    
+    // Open the edit modal with booking data
+    function openEditModal(bookingId, reason, avHall, date, startTime, endTime) {
+      document.getElementById('editForm').action = `/update/${bookingId}`;
+      document.getElementById('editReason').value = reason;
+      document.getElementById('editAvHall').value = avHall;
+      document.getElementById('editDate').value = date;
+      document.getElementById('editStartTime').value = startTime;
+      document.getElementById('editEndTime').value = endTime;
+      document.getElementById('editModal').style.display = 'block';
+    }
+    
+    // Close the edit modal
+    function closeEditModal() {
+      document.getElementById('editModal').style.display = 'none';
+    }
+    
+    // Open delete modal
+    function openDeleteModal(bookingId) {
+      currentBookingId = bookingId;
+      document.getElementById('deleteModal').style.display = 'block';
+    }
+    
+    // Close delete modal
+    function closeDeleteModal() {
+      document.getElementById('deleteModal').style.display = 'none';
+    }
+    
+    // Confirm delete action
+    function confirmDelete() {
+      window.location.href = `/delete/${currentBookingId}?tab=myBookings`;
+    }
+    
+    // Open cancel modal
+    function openCancelModal(bookingId) {
+      currentBookingId = bookingId;
+      document.getElementById('cancelModal').style.display = 'block';
+    }
+    
+    // Close cancel modal
+    function closeCancelModal() {
+      document.getElementById('cancelModal').style.display = 'none';
+    }
+    
+    // Confirm cancel action
+    function confirmCancel() {
+      window.location.href = `/cancel/${currentBookingId}?tab=myBookings`;
+    }
+    
+    // Form validation for booking
     document.addEventListener('DOMContentLoaded', function() {
+      // Validate booking form
+      const bookForm = document.querySelector("#bookHall form");
+      if (bookForm) {
+        bookForm.addEventListener('submit', function(e) {
+          validateTimeOrder(e, 'startTime', 'endTime');
+        });
+      }
+      
+      // Validate edit form
+      const editForm = document.getElementById('editForm');
+      if (editForm) {
+        editForm.addEventListener('submit', function(e) {
+          validateTimeOrder(e, 'editStartTime', 'editEndTime');
+        });
+      }
+      
+      // Close modals when clicking outside of them
+      window.addEventListener('click', function(event) {
+        const editModal = document.getElementById('editModal');
+        const deleteModal = document.getElementById('deleteModal');
+        const cancelModal = document.getElementById('cancelModal');
+        
+        if (event.target === editModal) {
+          closeEditModal();
+        } else if (event.target === deleteModal) {
+          closeDeleteModal();
+        } else if (event.target === cancelModal) {
+          closeCancelModal();
+        }
+      });
+      
+      // Close filter dropdown when clicking outside
+      window.addEventListener('click', function(event) {
+        const filterDropdown = document.getElementById('filterDropdown');
+        const filterBtn = document.querySelector('.filter-btn');
+        
+        if (filterDropdown && filterDropdown.style.display === 'block' && 
+            !event.target.matches('.filter-btn') && !event.target.closest('.filter-dropdown')) {
+          filterDropdown.style.display = 'none';
+        }
+      });
+      
+      // Check URL for tab parameter
       const urlParams = new URLSearchParams(window.location.search);
-      const tab = urlParams.get('tab');
-      if (tab) {
-        showTab(tab);
-      }
+      const tabParam = urlParams.get('tab');
       
-      // Set minimum date for date inputs to today
-      const today = new Date().toISOString().split('T')[0];
-      document.getElementById('date').min = today;
-      if (document.getElementById('edit-date')) {
-        document.getElementById('edit-date').min = today;
-      }
-
-      sortBookings();
-
-      
-    });
-
-    
-    // Auto-hide notification messages and clean URL after 5 seconds
-document.addEventListener('DOMContentLoaded', function() {
-  const notifications = document.querySelectorAll('.success-message, .error-message');
-  
-  if (notifications.length > 0) {
-    setTimeout(function() {
-      // Fade out notifications
-      notifications.forEach(notification => {
-        // Fade out animation
-        notification.style.opacity = '1';
-        (function fadeOut() {
-          if ((notification.style.opacity -= 0.1) < 0) {
-            notification.style.display = 'none';
-          } else {
-            requestAnimationFrame(fadeOut);
-          }
-        })();
-      });
-      
-      // Clean URL - remove success and error parameters but keep the active tab
-      const url = new URL(window.location.href);
-      const tab = url.searchParams.get('tab');
-      
-      // Create a new clean URL with only the tab parameter if it exists
-      const cleanURL = window.location.pathname + (tab ? `?tab=${tab}` : '');
-      
-      // Replace current URL in browser history without reloading
-      window.history.replaceState({}, document.title, cleanURL);
-      
-    }, 4000); // 5 seconds delay
-  }
-});
-    // Show tab
-    function showTab(tabId) {
-      // Hide all tabs
-      const tabContents = document.querySelectorAll('.tab-content');
-      tabContents.forEach(tab => {
-        tab.style.display = 'none';
-      });
-      
-      // Show selected tab
-      const selectedTab = document.getElementById(tabId);
-      if (selectedTab) {
-        selectedTab.style.display = 'block';
-      }
-      
-      // Update active tab button
-      const tabButtons = document.querySelectorAll('.tab-btn');
-      tabButtons.forEach(button => {
-        button.classList.remove('active');
-      });
-      
-      const activeButton = document.querySelector(`.tab-btn[onclick="showTab('${tabId}')"]`);
-      if (activeButton) {
-        activeButton.classList.add('active');
-      }
-    }
-    
-    // Show edit form with booking details
-    function showEditForm(bookingId, reason, avHall, date, startTime, endTime) {
-      const form = document.getElementById('booking-edit-form');
-      form.action = `/update/${bookingId}`;
-      
-      document.getElementById('edit-reason').value = reason;
-      document.getElementById('edit-avHall').value = avHall;
-      document.getElementById('edit-date').value = date;
-      document.getElementById('edit-startTime').value = startTime;
-      document.getElementById('edit-endTime').value = endTime;
-      
-      document.getElementById('edit-form').style.display = 'block';
-    }
-    
-    // Hide edit form
-    function hideEditForm() {
-      document.getElementById('edit-form').style.display = 'none';
-    }
-    
-    // Show cancel modal
-    function showCancelModal(bookingId) {
-      const cancelForm = document.getElementById('cancel-form');
-      cancelForm.action = `/cancel/${bookingId}`;
-      document.getElementById('cancel-modal').style.display = 'block';
-    }
-    
-    // Hide cancel modal
-    function hideCancelModal() {
-      document.getElementById('cancel-modal').style.display = 'none';
-    }
-    
-    // Replace your current filter button click handler with this one
-document.getElementById('filter-btn').addEventListener('click', function(event) {
-  // Prevent the event from triggering the document click handler immediately
-  event.stopPropagation();
-  
-  const dropdown = document.getElementById('filter-dropdown');
-  // Toggle dropdown visibility
-  if (dropdown.style.display === 'none') {
-    dropdown.style.display = 'block';
-    
-    // Add a one-time event listener that will run on the next click
-    setTimeout(() => {
-      const closeDropdownHandler = function(e) {
-        // Check if the click is outside both the button and dropdown
-        if (!document.getElementById('filter-btn').contains(e.target) && 
-            !document.getElementById('filter-dropdown').contains(e.target)) {
-          // Hide the dropdown
-          document.getElementById('filter-dropdown').style.display = 'none';
-          // Remove this event listener since we only need it once
-          document.removeEventListener('click', closeDropdownHandler);
-        }
-      };
-      
-      // Add the document-level click listener
-      document.addEventListener('click', closeDropdownHandler);
-    }, 0);
-  } else {
-    dropdown.style.display = 'none';
-  }
-});
-
-// Remove any other click handlers on the document that might interfere with the dropdown
-    
-    document.getElementById('filter-all').addEventListener('change', function() {
-      const checkboxes = document.querySelectorAll('.filter-option input[type="checkbox"]:not(#filter-all)');
-      checkboxes.forEach(checkbox => {
-        checkbox.disabled = this.checked;
-        if (this.checked) {
-          checkbox.checked = false;
-        }
-      });
-    });
-    
-    const otherCheckboxes = document.querySelectorAll('.filter-option input[type="checkbox"]:not(#filter-all)');
-    otherCheckboxes.forEach(checkbox => {
-      checkbox.addEventListener('change', function() {
-        const anyChecked = Array.from(otherCheckboxes).some(cb => cb.checked);
-        document.getElementById('filter-all').checked = !anyChecked;
-        
-        if (!anyChecked) {
-          document.getElementById('filter-all').dispatchEvent(new Event('change'));
-        }
-      });
-    });
-
-
-    
-    document.getElementById('apply-filter').addEventListener('click', function() {
-    const allFilter = document.getElementById('filter-all').checked;
-    const ongoingFilter = document.getElementById('filter-ongoing').checked;
-    const bookedFilter = document.getElementById('filter-booked').checked;
-    const completedFilter = document.getElementById('filter-completed').checked;
-    
-    const rows = document.querySelectorAll('#all-bookings-table tbody tr');
-    let visibleCount = 0;
-    
-    // Remove any existing "no bookings" message row
-    const existingNoBookingsRow = document.querySelector('#all-bookings-table tbody tr.no-results');
-    if (existingNoBookingsRow) {
-        existingNoBookingsRow.remove();
-    }
-    
-    // Skip the empty state row if it exists
-    const regularRows = Array.from(rows).filter(row => !row.querySelector('#no-bookings-message'));
-    
-    regularRows.forEach(row => {
-        const statusCell = row.querySelector('.status');
-        if (!statusCell) return;
-        
-        const status = statusCell.classList[1].replace('status-', '');
-        
-        if (allFilter || 
-            (status === 'ongoing' && ongoingFilter) ||
-            (status === 'booked' && bookedFilter) ||
-            (status === 'completed' && completedFilter)) {
-            row.style.display = '';
-            visibleCount++;
+      if (tabParam) {
+        // Open the tab specified in the URL
+        openTab(tabParam);
+      } else {
+        // Otherwise, try to restore the last active tab
+        const lastActiveTab = localStorage.getItem('activeTab');
+        if (lastActiveTab) {
+          openTab(lastActiveTab);
         } else {
-            row.style.display = 'none';
+          // Default to all bookings tab if no saved tab
+          openTab('allBookings');
         }
+      }
     });
     
-    // If no rows are visible after filtering, show appropriate message
-    if (visibleCount === 0) {
-        const tbody = document.querySelector('#all-bookings-table tbody');
-        const noResultsRow = document.createElement('tr');
-        noResultsRow.className = 'no-results';
+    // Validate that end time is after start time
+    function validateTimeOrder(e, startTimeId, endTimeId) {
+      const startTime = document.getElementById(startTimeId).value;
+      const endTime = document.getElementById(endTimeId).value;
+      
+      if (startTime >= endTime) {
+        e.preventDefault();
+        alert("End time must be after start time");
+      }
+    }
+
+    // Add this function to your existing script tag to move the filter container
+document.addEventListener('DOMContentLoaded', function() {
+  // Move the filter container inside the h2 for proper alignment
+  const allBookingsHeader = document.querySelector('#allBookings h2');
+  const filterContainer = document.querySelector('.filter-container');
+  
+  if (allBookingsHeader && filterContainer && !filterContainer.parentElement.isSameNode(allBookingsHeader)) {
+    // Only move if not already moved
+    allBookingsHeader.appendChild(filterContainer);
+  }
+  
+  // Rest of your existing DOMContentLoaded code...
+});
+
+// This script should be added at the end of the existing script section
+document.addEventListener('DOMContentLoaded', function() {
+  // Enhanced function to set up mobile card view for both tables
+function setupMobileCardView() {
+  // Only apply to mobile view
+  if (window.innerWidth <= 768) {
+    // Process both tables: all-bookings-table and my-bookings-table
+    const tables = ['all-bookings-table', 'my-bookings-table'];
+    
+    tables.forEach(tableId => {
+      const table = document.getElementById(tableId);
+      
+      if (table) {
+        const rows = table.querySelectorAll('tbody tr');
         
-        // Create a message based on which filter is active
-        let message = 'No bookings available';
-        if (!allFilter) {
-            if (ongoingFilter && !bookedFilter && !completedFilter) {
-                message = 'No ongoing bookings available';
-            } else if (bookedFilter && !ongoingFilter && !completedFilter) {
-                message = 'No booked AV halls available';
-            } else if (completedFilter && !ongoingFilter && !bookedFilter) {
-                message = 'No completed bookings available';
-            } else {
-                message = 'No matching bookings found';
+        rows.forEach(row => {
+          // Check if the row already has a status container at the top
+          if (!row.querySelector('.mobile-status-container')) {
+            // Get the status cell content
+            const statusCell = row.querySelector('td[data-label="Status"]');
+            if (statusCell) {
+              // Create a new div for the status at the top of the card
+              const statusContainer = document.createElement('div');
+              statusContainer.className = 'mobile-status-container';
+              
+              // Clone the status span from the original cell
+              const statusSpan = statusCell.querySelector('.status-container').cloneNode(true);
+              statusContainer.appendChild(statusSpan);
+              
+              // Insert the status container at the beginning of the row
+              row.insertBefore(statusContainer, row.firstChild);
             }
-        }
-        
-        const noResultsCell = document.createElement('td');
-        noResultsCell.colSpan = 7;
-        noResultsCell.textContent = message;
-        
-        noResultsRow.appendChild(noResultsCell);
-        tbody.appendChild(noResultsRow);
-    }
-    
-    document.getElementById('filter-dropdown').style.display = 'none';
-});
-    
-    // Sort bookings by status priority
-function sortBookings() {
-  // Sort All Bookings table
-  sortTableBookings('all-bookings-table');
-  
-  // Sort My Bookings table
-  sortTableBookings('my-bookings-table');
-}
-
-function sortTableBookings(tableId) {
-  const table = document.getElementById(tableId);
-  if (!table) return;
-  
-  const tbody = table.querySelector('tbody');
-  if (!tbody) return;
-  
-  const rows = Array.from(tbody.querySelectorAll('tr'));
-  if (rows.length <= 1) return;
-  
-  // Status priority: ongoing > booked > completed
-  const statusPriority = {
-    'ongoing': 1,
-    'booked': 2,
-    'completed': 3,
-    'cancelled': 4  // Adding cancelled status with lowest priority
-  };
-  
-  rows.sort((a, b) => {
-    const statusCellA = a.querySelector('.status');
-    const statusCellB = b.querySelector('.status');
-    
-    // Skip rows without status (like "no bookings" message)
-    if (!statusCellA || !statusCellB) return 0;
-    
-    const aStatus = statusCellA.classList[1].replace('status-', '');
-    const bStatus = statusCellB.classList[1].replace('status-', '');
-    
-    // Sort by status priority
-    if (statusPriority[aStatus] !== statusPriority[bStatus]) {
-      return statusPriority[aStatus] - statusPriority[bStatus];
-    }
-    
-    // If status is the same, sort by date/time
-    const aDate = new Date(a.querySelector('td:nth-child(3)').textContent);
-    const bDate = new Date(b.querySelector('td:nth-child(3)').textContent);
-    
-    if (aDate.getTime() !== bDate.getTime()) {
-      return aDate - bDate;
-    }
-    
-    // If date is the same, sort by start time
-    const aStartTime = a.querySelector('td:nth-child(4)').textContent;
-    const bStartTime = b.querySelector('td:nth-child(4)').textContent;
-    return aStartTime.localeCompare(bStartTime);
-  });
-  
-  // Append sorted rows to tbody
-  rows.forEach(row => tbody.appendChild(row));
-}
-    
-    // Run initial sort
-    sortBookings();
-    
-    function refreshStatus() {
-  const rows = document.querySelectorAll('#all-bookings-table tbody tr, #my-bookings-table tbody tr');
-  const now = new Date();
-  const currentTime = now.getHours().toString().padStart(2, '0') + ':' + 
-                     now.getMinutes().toString().padStart(2, '0');
-  const currentTimeMinutes = convertTimeToMinutes(currentTime);
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  
-  rows.forEach(row => {
-    const status = row.querySelector('.status');
-    if (!status) return;
-    
-    // Skip "no bookings" rows
-    if (row.querySelector('td[colspan]')) return;
-    
-    const dateCell = row.cells[row.querySelector('td[data-label="Date"]') ? 
-                               row.querySelector('td[data-label="Date"]').cellIndex : 2];
-    const startTimeCell = row.cells[row.querySelector('td[data-label="Start Time"]') ? 
-                                   row.querySelector('td[data-label="Start Time"]').cellIndex : 3];
-    const endTimeCell = row.cells[row.querySelector('td[data-label="End Time"]') ? 
-                                 row.querySelector('td[data-label="End Time"]').cellIndex : 4];
-    
-    if (!dateCell || !startTimeCell || !endTimeCell) return;
-    
-    const bookingDate = new Date(dateCell.textContent.trim());
-    const startTime = startTimeCell.textContent.trim();
-    const endTime = endTimeCell.textContent.trim();
-    
-    const startTimeMinutes = convertTimeToMinutes(startTime);
-    const endTimeMinutes = convertTimeToMinutes(endTime);
-    
-    // Check if booking is for today
-    const isToday = bookingDate.getFullYear() === today.getFullYear() && 
-                    bookingDate.getMonth() === today.getMonth() && 
-                    bookingDate.getDate() === today.getDate();
-    
-    // Check if booking is in the past
-    const isPast = bookingDate < today;
-    
-    // Update status based on current time and date
-    if (status.classList.contains('status-booked') || status.classList.contains('status-ongoing')) {
-      if (isPast || (isToday && currentTimeMinutes >= endTimeMinutes)) {
-        status.textContent = 'Completed';
-        status.className = 'status status-completed';
-      } else if (isToday && currentTimeMinutes >= startTimeMinutes && currentTimeMinutes < endTimeMinutes) {
-        status.textContent = 'Ongoing';
-        status.className = 'status status-ongoing';
-      }
-    }
-  });
-}
-    
-    // Run initial status update
-    refreshStatus();
-    
-    // Set interval to refresh status every minute
-    setInterval(refreshStatus, 10000);
-    
-    // Close the modal when clicking outside
-    window.onclick = function(event) {
-      const modal = document.getElementById('cancel-modal');
-      if (event.target === modal) {
-        hideCancelModal();
-      }
-    }
-// Transform table to mobile card view
-function transformTableToMobile() {
-  const tables = document.querySelectorAll('#all-bookings-table, #my-bookings-table');
-  
-  tables.forEach(table => {
-    // Define column labels based on table headers
-    const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
-    
-    // Process each row
-    const rows = table.querySelectorAll('tbody tr');
-    rows.forEach(row => {
-      // Skip rows with colspan (like "No bookings found")
-      if (row.querySelector('td[colspan]')) return;
-      
-      // Find status cell and extract its content
-      let statusCell = null;
-      let statusContent = null;
-      
-      row.querySelectorAll('td').forEach((cell, index) => {
-        // Look for cell with status class inside
-        if (cell.querySelector('.status')) {
-          statusCell = cell;
-          statusContent = cell.innerHTML;
-          
-          // Mark original status cell
-          cell.classList.add('original-status-cell');
-        }
-      });
-      
-      // Create status container at top if status found
-      if (statusContent) {
-        // Create and insert status container
-        const statusContainer = document.createElement('div');
-        statusContainer.className = 'status-container';
-        statusContainer.innerHTML = statusContent;
-        row.insertBefore(statusContainer, row.firstChild);
-      }
-      
-      // Transform each cell
-      const cells = row.querySelectorAll('td');
-      cells.forEach((cell, index) => {
-        // Skip if this is a status cell (already shown at top)
-        if (cell.classList.contains('original-status-cell')) return;
-        
-        // Store original content
-        const originalContent = cell.innerHTML;
-        
-        // Skip action columns without restructuring
-        if (headers[index] === 'Actions') return;
-        
-        // Clear and restructure cell
-        cell.innerHTML = '';
-        
-        // Create label
-        const labelSpan = document.createElement('span');
-        labelSpan.className = 'cell-label';
-        labelSpan.textContent = headers[index] + ':';
-        cell.appendChild(labelSpan);
-        
-        // Create value
-        const valueSpan = document.createElement('span');
-        valueSpan.className = 'cell-value';
-        valueSpan.innerHTML = originalContent;
-        cell.appendChild(valueSpan);
-      });
-    });
-  });
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-  // Function to transform tables for mobile view
-  function transformTablesForMobile() {
-    // Get all tables we want to transform
-    const tables = document.querySelectorAll('#all-bookings-table, #my-bookings-table');
-    
-    tables.forEach(table => {
-      // Get header texts
-      const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
-      
-      // Process each row
-      const rows = table.querySelectorAll('tbody tr');
-      
-      rows.forEach(row => {
-        // Skip "no bookings" rows
-        if (row.querySelector('td[colspan]')) return;
-        
-        // Process each cell
-        const cells = row.querySelectorAll('td');
-        
-        // Find status cell
-        let statusCell = null;
-        let statusHtml = null;
-        
-        cells.forEach((cell, index) => {
-          // Add data-label attribute from corresponding header
-          if (headers[index]) {
-            cell.setAttribute('data-label', headers[index]);
-          }
-          
-          // Check if this is the status cell
-          if (cell.querySelector('.status')) {
-            statusCell = cell;
-            statusHtml = cell.innerHTML;
-            cell.classList.add('original-status-cell');
           }
         });
-        
-        // Create status container at top of card
-        if (statusHtml) {
-          const statusContainer = document.createElement('div');
-          statusContainer.className = 'status-container';
-          statusContainer.innerHTML = statusHtml;
-          
-          // Insert status at top of row
-          if (row.firstChild) {
-            row.insertBefore(statusContainer, row.firstChild);
-          } else {
-            row.appendChild(statusContainer);
-          }
-        }
-      });
+      }
     });
   }
+}
   
-  // Run transformation
-  transformTablesForMobile();
+  // Run initially
+  setupMobileCardView();
+  // Call this function on page load and window resize
+document.addEventListener('DOMContentLoaded', function() {
+  // Initial setup
+  setupMobileCardView();
   
-  // Set up refresh to re-run transformation when status changes
-  setInterval(function() {
-    // Remove old status containers
-    document.querySelectorAll('.status-container').forEach(el => el.remove());
-    
-    // Re-run transformation
-    transformTablesForMobile();
-  }, 15000); // Every 15 seconds
+  // Run when window is resized
+  window.addEventListener('resize', setupMobileCardView);
+  
+  // Run when tabs are changed
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  tabButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      // Allow DOM to update before running the function
+      setTimeout(setupMobileCardView, 100);
+    });
+  });
 });
-
-
-   
+  
+  // Also run when window is resized
+  window.addEventListener('resize', setupMobileCardView);
+  
+  // Run when tabs are changed
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  tabButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      // Allow DOM to update before running the function
+      setTimeout(setupMobileCardView, 100);
+    });
+  });
+});
   </script>
-  <script>
-// Transform tables only on mobile screens
-(function() {
-  // Function to check if screen is mobile width
-  function isMobileWidth() {
-    return window.innerWidth <= 768;
-  }
-  
-  // Function to transform tables to card layout
-  function transformTables() {
-    // Only transform if we're at mobile width
-    if (!isMobileWidth()) return;
-    
-    // Remove any existing status containers first to avoid duplicates
-    document.querySelectorAll('.status-container').forEach(el => el.remove());
-    
-    // Get all tables we want to transform
-    const tables = document.querySelectorAll('#all-bookings-table, #my-bookings-table');
-    
-    tables.forEach(table => {
-      // Get header texts
-      const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
-      
-      // Process each row
-      const rows = table.querySelectorAll('tbody tr');
-      
-      rows.forEach(row => {
-        // Skip "no bookings" rows
-        if (row.querySelector('td[colspan]')) return;
-        
-        // Process each cell
-        const cells = row.querySelectorAll('td');
-        
-        // Find status cell
-        let statusCell = null;
-        let statusHtml = null;
-        
-        cells.forEach((cell, index) => {
-          // Add data-label attribute from corresponding header
-          if (headers[index]) {
-            cell.setAttribute('data-label', headers[index]);
-          }
-          
-          // Check if this is the status cell
-          if (cell.querySelector('.status')) {
-            statusCell = cell;
-            statusHtml = cell.innerHTML;
-            cell.classList.add('original-status-cell');
-          }
-        });
-        
-        // Create status container at top of card
-        if (statusHtml) {
-          const statusContainer = document.createElement('div');
-          statusContainer.className = 'status-container';
-          statusContainer.innerHTML = statusHtml;
-          
-          // Insert status at top of row
-          if (row.firstChild) {
-            row.insertBefore(statusContainer, row.firstChild);
-          } else {
-            row.appendChild(statusContainer);
-          }
-        }
-      });
-    });
-  }
-  
-  // Initial transformation
-  transformTables();
-  
-  // Re-run transformation when window is resized
-  window.addEventListener('resize', transformTables);
-  
-  // CSS is already properly scoped with media queries, no need to add it via JS
-  // Add this style directly to page
-  const style = document.createElement('style');
-  style.textContent = `
-    @media screen and (max-width: 768px) {
-      #all-bookings-table thead, 
-      #my-bookings-table thead {
-        display: none; /* Hide table headers */
-      }
-      
-      #all-bookings-table tbody tr, 
-      #my-bookings-table tbody tr {
-        display: block;
-        margin-bottom: 15px;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        background-color: #222;
-        position: relative;
-        padding-top: 40px; /* Space for status at top */
-      }
-      
-            /* Status at top of card */
-      #all-bookings-table .status-container, 
-      #my-bookings-table .status-container {
-        position: absolute;
-        top: 0;
-        left: -10px;
-        right: 0;
-        padding: 8px;
-        text-align: left;
-        padding-left: 12px;
-        border-bottom: 1px solid #333;
-        background-color: #1a1a1a;
-        border-radius: 8px 8px 0 0;
-        display: flex;
-        justify-content: flex-start; /* Change from center to flex-start */
-      }
-      
-      /* Style cells for card layout */
-      #all-bookings-table tbody td, 
-      #my-bookings-table tbody td {
-        display: flex;
-        text-align: left;
-        padding: 10px 12px;
-        border-bottom: 1px solid #333;
-      }
-      
-      /* Hide the original status cell */
-      #all-bookings-table tbody td.original-status-cell, 
-      #my-bookings-table tbody td.original-status-cell {
-        display: none;
-      }
-      
-      /* Labels for each field */
-      #all-bookings-table tbody td:before, 
-      #my-bookings-table tbody td:before {
-        content: attr(data-label);
-        font-weight: bold;
-        width: 95px;
-        min-width: 95px;
-        padding-right: 10px;
-        color: #999;
-      }
-    }
-  `;
-  document.head.appendChild(style);
-})();
-  
-// Function to capitalize first letter of status text
-function capitalizeStatuses() {
-  const statusElements = document.querySelectorAll('.status');
-  
-  statusElements.forEach(statusElement => {
-    const currentText = statusElement.textContent.trim();
-    if (currentText && currentText.length > 0) {
-      // Capitalize first letter only
-      const capitalizedText = currentText.charAt(0).toUpperCase() + currentText.slice(1).toLowerCase();
-      statusElement.textContent = capitalizedText;
-    }
-  });
-}
-
-// Run when the page loads
-document.addEventListener('DOMContentLoaded', function() {
-  capitalizeStatuses();
-  
-  // Also run after any status updates
-  setInterval(capitalizeStatuses, 10000);
-});
-
-// In your EJS template, update the delete button functionality
-function showDeleteModal(bookingId) {
-  const deleteForm = document.getElementById('delete-form');
-  deleteForm.action = `/delete/${bookingId}`;
-  document.getElementById('delete-modal').style.display = 'block';
-}
-
-function hideDeleteModal() {
-  document.getElementById('delete-modal').style.display = 'none';
-}
-
-// After submission and success, we need to refresh the page to show the updated list
-
-// Close the modal when clicking outside (update existing window.onclick)
-window.onclick = function(event) {
-  const cancelModal = document.getElementById('cancel-modal');
-  const deleteModal = document.getElementById('delete-modal');
-  
-  if (event.target === cancelModal) {
-    hideCancelModal();
-  } else if (event.target === deleteModal) {
-    hideDeleteModal();
-  }
-}
-</script>
 </body>
 </html>

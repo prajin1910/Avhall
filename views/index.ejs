@@ -3,472 +3,353 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Add this meta tag inside the <head> section -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, height=device-height">
-  <title>AV Hall Booking System - Login/Register</title>
+  <title>AV Hall Booking System</title>
   <style>
-  /* Global Styles */
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-  }
-  
-
-  :root {
-    --bg-primary: #121212;
-    --bg-secondary: #1e1e1e;
-    --bg-tertiary: #252525;
-    --bg-elevated: #2d2d2d;
-    --text-primary: #e0e0e0;
-    --text-secondary: #a0a0a0;
-    --primary-color: #6366f1;
-    --primary-hover: #4f46e5;
-    --danger-color: #ef4444;
-    --danger-hover: #dc2626;
-    --success-color: #10b981;
-    --success-hover: #059669;
-    --border-color: #333333;
-    --shadow-color: rgba(0, 0, 0, 0.5);
-  }
-
-  body {
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-    line-height: 1.6;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    padding: 2rem;
-  }
-
-  h1 {
-    color: var(--text-primary);
-    margin-bottom: 2rem;
-    text-align: center;
-    font-weight: 600;
-    font-size: 1.75rem;
-    letter-spacing: -0.5px;
-  }
-
-  /* Notification Messages */
-  .error-message, .success-message {
-    padding: 1rem 1.5rem;
-    margin: 1rem;
-    border-radius: 8px;
-    text-align: center;
-    font-weight: 500;
-    width: 100%;
-    max-width: 500px;
-    box-shadow: 0 4px 6px var(--shadow-color);
-    animation: fadeIn 0.3s ease-in-out;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .error-message {
-    background-color: rgba(220, 38, 38, 0.1);
-    color: #ef4444;
-    border-left: 4px solid #ef4444;
-  }
-
-  .success-message {
-    background-color: rgba(16, 185, 129, 0.1);
-    color: #10b981;
-    border-left: 4px solid #10b981;
-  }
-
-  /* Auth Container */
-  .auth-container {
-    background-color: var(--bg-secondary);
-    border-radius: 12px;
-    box-shadow: 0 4px 12px var(--shadow-color);
-    width: 100%;
-    max-width: 500px;
-    overflow: hidden;
-  }
-
-  /* Tab Navigation */
-  .tabs {
-    display: flex;
-    border-bottom: 1px solid var(--border-color);
-  }
-
-  .tab-btn {
-    flex: 1;
-    background: transparent;
-    border: none;
-    padding: 1rem 1.5rem;
-    cursor: pointer;
-    font-size: 1rem;
-    color: var(--text-secondary);
-    position: relative;
-    transition: all 0.3s;
-    outline: none;
-  }
-
-  .tab-btn:hover {
-    color: var(--text-primary);
-  }
-
-  .tab-btn.active {
-    color: var(--primary-color);
-    font-weight: 500;
-  }
-
-  .tab-btn.active::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background-color: var(--primary-color);
-    border-radius: 3px 3px 0 0;
-  }
-
-  /* Tab Content */
-  .tab-content {
-    padding: 2rem;
-    animation: fadeIn 0.3s ease-in-out;
-  }
-
-  .tab-content h2 {
-    color: var(--text-primary);
-    margin-bottom: 1.5rem;
-    font-weight: 600;
-    font-size: 1.5rem;
-    text-align: center;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 0.75rem;
-    letter-spacing: -0.5px;
-  }
-
-  /* Forms */
-  form div {
-    margin-bottom: 1.5rem;
-  }
-
-  label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: var(--text-primary);
-    font-weight: 500;
-  }
-
-  input, select {
-    width: 100%;
-    padding: 0.875rem 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    font-size: 1rem;
-    background-color: var(--bg-tertiary);
-    color: var(--text-primary);
-    transition: all 0.3s;
-  }
-
-  input:focus, select:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
-    outline: none;
-  }
-
-  button {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 0.875rem 1.5rem;
-    font-size: 1rem;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-weight: 500;
-    width: 100%;
-    margin-top: 0.5rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  button:hover {
-    background-color: var(--primary-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  }
-
-  /* Responsive Adjustments */
-  @media (max-width: 600px) {
-    body {
-      padding: 1rem;
-    }
-    
-    .auth-container {
-      border-radius: 8px;
-    }
-    
-    .tab-content {
-      padding: 1.5rem 1rem;
-    }
-    
-    input, select, button {
-      padding: 0.75rem;
-    }
-  }
-  .password-field {
-  position: relative;
-}
-
-.password-toggle {
-  position: absolute;
-  right: 12px;
-  top: 70%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  color: var(--text-secondary);
-  width: auto;
+    /* Global Styles */
+* {
   margin: 0;
-  box-shadow: none;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-.password-toggle:hover {
-  background: none;
-  transform: translateY(-50%);
-  box-shadow: none;
+:root {
+  --bg-primary: #121212;
+  --bg-secondary: #1e1e1e;
+  --bg-tertiary: #252525;
+  --bg-elevated: #2d2d2d;
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --primary-color: #6366f1;
+  --primary-hover: #4f46e5;
+  --danger-color: #ef4444;
+  --danger-hover: #dc2626;
+  --success-color: #10b981;
+  --border-color: #333333;
+  --shadow-color: rgba(0, 0, 0, 0.5);
 }
 
-.password-toggle svg {
-  width: 20px;
-  height: 20px;
-}
-/* Update these responsive styles in your existing CSS */
-/* Replace your existing mobile media query with this */
-@media (max-width: 600px) {
-  body {
-    padding: 0;
-    min-height: 100vh;
-  }
-  
-  main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    padding: 1rem;
-  }
-  
-  .auth-container {
-    border-radius: 8px;
-    width: 100%;
-    max-width: 90%;
-    margin: 0 auto;
-  }
-  
-  .tab-content {
-    padding: 1.25rem 1rem;
-  }
-  
-  input, select, button {
-    padding: 0.75rem;
-  }
-  
-  .footer {
-    position: static;
-    margin-top: 1rem;
-    padding: 0.75rem 0;
-    width: 100%;
-  }
-  
-  /* Fix scrolling issues */
-  html, body {
-    height: 100%;
-  }
-  
-  /* Add this to specifically handle the login tab */
-  body.login-active {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  
-  /* Add this to handle the register tab */
-  body.register-active {
-    display: block;
-    overflow-y: auto;
-  }
-}
-@media (max-width: 600px) {
-  body {
-    padding: 0;
-    min-height: 100vh;
-  }
-  
-  main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    padding: 1rem;
-    /* Add padding to push content down a bit */
-    padding-top: 12vh;
-  }
-  
-  h1 {
-    margin-bottom: 2rem;
-    top: 10%;
-  }
-  
-  .auth-container {
-    border-radius: 8px;
-    width: 100%;
-    max-width: 90%;
-    margin: 0 auto;
-    /* Add margin to push it down */
-    margin-top: -1rem;
-  }
-  
-  .tab-content {
-    padding: 1.25rem 1rem;
-  }
-  
-  input, select, button {
-    padding: 0.75rem;
-  }
-  
-  .footer {
-    position: static;
-    margin-top: 1rem;
-    padding: 0.75rem 0;
-    width: 100%;
-  }
-  
-  /* Fix scrolling issues */
-  html, body {
-    height: 100%;
-  }
-  
-  /* For login tab specifically */
-  body.login-active main {
-    justify-content: flex-start;
-    padding-top: 15vh;
-  }
-  
-  /* For register tab */
-  body.register-active {
-    display: block;
-    overflow-y: auto;
-  }
-  
-  body.register-active main {
-    padding-top: 4vh;
-  }
-}
-/* Footer Styles */
-.footer {
-  margin-top: 2rem;
-  padding: 1rem 0;
-  text-align: center;
-  width: 100%;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  border-top: 1px solid var(--border-color);
-}
-
-.footer p {
-  margin: 0.5rem 0;
-}
-
-.footer a {
-  color: var(--primary-color);
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.footer a:hover {
-  color: var(--primary-hover);
-  text-decoration: underline;
-}
-
-/* Adjust body for footer */
 body {
-  display: flex;
-  flex-direction: column;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
   min-height: 100vh;
-}
-
-main {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
+  padding: 2rem 1rem;
 }
 
-@media (max-width: 600px) {
-  .footer {
-    margin-top: 1.5rem;
-    padding: 0.75rem 0;
+h1 {
+  margin-bottom: 2rem;
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: -0.5px;
+}
+
+/* Message Styles */
+#message {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+  font-weight: 500;
+}
+
+.success-message {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border: 1px solid #10b981;
+}
+
+.error-message {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid #ef4444;
+}
+
+/* Login/Register Container */
+#loginRegisterContainer {
+  background-color: var(--bg-secondary);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px var(--shadow-color);
+  width: 100%;
+  max-width: 500px;
+  overflow: hidden;
+  animation: slideUp 0.5s ease;
+}
+
+/* Toggle Buttons */
+#toggleButtons {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+}
+
+#toggleButtons button {
+  flex: 1;
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: none;
+  padding: 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#toggleButtons button:disabled {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-bottom: 3px solid var(--primary-color);
+}
+
+#toggleButtons button:not(:disabled):hover {
+  color: var(--text-primary);
+  background-color: rgba(99, 102, 241, 0.1);
+}
+
+/* Form Styles */
+#loginForm, #registerForm {
+  padding: 2rem;
+}
+
+h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+form div {
+  margin-bottom: 1.5rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+input {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+/* Password Input Wrapper */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  padding-right: 3rem; /* Space for the eye icon */
+}
+
+/* Eye Icon Button */
+.toggle-password {
+  position: absolute;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+}
+
+.toggle-password:hover {
+  color: var(--text-primary);
+}
+
+.eye-icon {
+  width: 22px;
+  height: 22px;
+}
+
+/* Submit Button */
+form button[type="submit"] {
+  width: 100%;
+  padding: 1rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+}
+
+form button[type="submit"]:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+}
+
+form button[type="submit"]:active {
+  transform: translateY(0);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
   }
+  
+  #loginForm, #registerForm {
+    padding: 1.5rem;
+  }
+  
+  input {
+    padding: 0.8rem;
+  }
+  
+  form button[type="submit"] {
+    padding: 0.8rem;
+  }
+}
+
+/* Footer Styles */
+.footer {
+  margin-top: 3rem;
+  width: 100%;
+  background-color: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  padding: 1.5rem 0;
+  text-align: center;
+  border-radius: 12px;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.footer-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.footer p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+@media (max-width: 576px) {
+  .footer {
+    margin-top: 2rem;
+    padding: 1rem 0;
+  }
+}
+select {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23a0a0a0'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.5em;
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+select option {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
 }
   </style>
 </head>
 <body>
-  <main>
   <h1>AV Hall Booking System</h1>
   
-  <% if (locals.error) { %>
-    <div class="error-message">
-      <%= error %>
-    </div>
+  <% if (message) { %>
+    <% if (message.includes('error') || message.includes('failed') || message.includes('invalid')) { %>
+      <div id="message" class="error-message"><%= message %></div>
+    <% } else { %>
+      <div id="message" class="success-message"><%= message %></div>
+    <% } %>
+    <script>
+      setTimeout(function() {
+        document.getElementById('message').style.display = 'none';
+      }, 3000);
+    </script>
   <% } %>
   
-  <% if (locals.success) { %>
-    <div class="success-message">
-      <%= success %>
-    </div>
-  <% } %>
-  
-  <div class="auth-container">
-    <div class="tabs">
-      <button class="tab-btn active" onclick="showTab('login')">Login</button>
-      <button class="tab-btn" onclick="showTab('register')">Register</button>
+  <div id="loginRegisterContainer">
+    <div id="toggleButtons">
+      <button id="showLoginButton" onclick="showLogin()">Login</button>
+      <button id="showRegisterButton" onclick="showRegister()">Register</button>
     </div>
     
-    <div id="login" class="tab-content">
+    <div id="loginForm">
       <h2>Login</h2>
       <form action="/login" method="POST">
         <div>
-          <label for="login-email">Email:</label>
-          <input type="email" id="login-email" name="email" placeholder="Enter Email" required>
+          <label for="loginEmail">Email:</label>
+          <input type="email" id="loginEmail" name="email" placeholder="Enter Email" required>
         </div>
-        <div class="password-field">
-          <label for="login-password">Password:</label>
-          <input type="password" id="login-password" name="password" placeholder="Enter your Password" required>
-          <button type="button" class="password-toggle" onclick="togglePassword('login-password')">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-          </button>
+        <div>
+          <label for="loginPassword">Password:</label>
+          <div class="password-wrapper">
+            <input type="password" id="loginPassword" name="password" placeholder="Enter Password" required>
+            <button type="button" class="toggle-password" onclick="togglePasswordVisibility('loginPassword')">
+              <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </button>
+          </div>
         </div>
         <button type="submit">Login</button>
       </form>
     </div>
     
-    <div id="register" class="tab-content" style="display: none;">
+    <div id="registerForm" style="display: none;">
       <h2>Register</h2>
       <form action="/register" method="POST">
         <div>
-          <label for="name">Full Name:</label>
+          <label for="name">Name:</label>
           <input type="text" id="name" name="name" placeholder="Enter Name" required>
         </div>
         <div>
@@ -489,91 +370,66 @@ main {
             <option value="BIO">Bio-Technology (BIO)</option>
           </select>      
         </div>
-        <div class="password-field">
+        <div>
           <label for="password">Password:</label>
-          <input type="password" id="password" name="password" placeholder="Enter Password" required>
-          <button type="button" class="password-toggle" onclick="togglePassword('password')">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-          </button>
+          <div class="password-wrapper">
+            <input type="password" id="password" name="password" placeholder="Create Password" required>
+            <button type="button" class="toggle-password" onclick="togglePasswordVisibility('password')">
+              <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </button>
+          </div>
         </div>
         <button type="submit">Register</button>
       </form>
     </div>
   </div>
 
-  </main>
-   <footer class="footer">
-    <p>&copy; AV Hall Booking System by Prajin Kumar P</p>
+  <footer class="footer">
+    <div class="footer-content">
+      <p>&copy; AV Hall Booking by Prajin Kumar P</p>
+    </div>
   </footer>
+  
   <script>
-    function showTab(tabName) {
-      // Hide all tab contents
-      const tabContents = document.querySelectorAll('.tab-content');
-      tabContents.forEach(content => {
-        content.style.display = 'none';
-      });
-      
-      // Remove active class from all tabs
-      const tabButtons = document.querySelectorAll('.tab-btn');
-      tabButtons.forEach(btn => {
-        btn.classList.remove('active');
-      });
-      
-      // Show selected tab content and set active class
-      document.getElementById(tabName).style.display = 'block';
-      document.querySelector(`.tab-btn[onclick="showTab('${tabName}')"]`).classList.add('active');
+    function showLogin() {
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('registerForm').style.display = 'none';
+      document.getElementById('showLoginButton').disabled = true;
+      document.getElementById('showRegisterButton').disabled = false;
     }
-    function togglePassword(inputId) {
-  const passwordInput = document.getElementById(inputId);
-  const toggleButton = passwordInput.nextElementSibling;
-  
-  if (passwordInput.type === "password") {
-    passwordInput.type = "text";
-    toggleButton.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-      </svg>
-    `;
-  } else {
-    passwordInput.type = "password";
-    toggleButton.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-      </svg>
-    `;
-  }
-}
-
-function showTab(tabName) {
-  // Hide all tab contents
-  const tabContents = document.querySelectorAll('.tab-content');
-  tabContents.forEach(content => {
-    content.style.display = 'none';
-  });
-  
-  // Remove active class from all tabs
-  const tabButtons = document.querySelectorAll('.tab-btn');
-  tabButtons.forEach(btn => {
-    btn.classList.remove('active');
-  });
-  
-  // Show selected tab content and set active class
-  document.getElementById(tabName).style.display = 'block';
-  document.querySelector(`.tab-btn[onclick="showTab('${tabName}')"]`).classList.add('active');
-  
-  // Update body class based on active tab
-  document.body.classList.remove('login-active', 'register-active');
-  document.body.classList.add(tabName + '-active');
-}
-
-// Set initial body class based on default tab
-document.addEventListener('DOMContentLoaded', function() {
-  document.body.classList.add('login-active');
-});
+    
+    function showRegister() {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('registerForm').style.display = 'block';
+      document.getElementById('showLoginButton').disabled = false;
+      document.getElementById('showRegisterButton').disabled = true;
+    }
+    
+    function togglePasswordVisibility(inputId) {
+      const passwordInput = document.getElementById(inputId);
+      const icon = event.currentTarget.querySelector('svg');
+      
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        // Change to "eye-off" icon
+        icon.innerHTML = `
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+        `;
+      } else {
+        passwordInput.type = "password";
+        // Change back to "eye" icon
+        icon.innerHTML = `
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        `;
+      }
+    }
+    
+    // Initialize to login form
+    showLogin();
   </script>
 </body>
 </html>
